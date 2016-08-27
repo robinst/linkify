@@ -1,0 +1,9 @@
+# cargo
+target
+Cargo.lock
+
+# MacOS
+.DS_Store
+
+# IDEA
+.idea
