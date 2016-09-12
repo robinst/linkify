@@ -94,7 +94,7 @@ impl UrlScanner {
                 '(' => {
                     round += 1;
                     false
-                },
+                }
                 ')' => {
                     round -= 1;
                     if round < 0 {
@@ -139,9 +139,7 @@ impl UrlScanner {
                     // A single quote can only be the end of an URL if there's an even number
                     !single_quote
                 }
-                _ => {
-                    true
-                }
+                _ => true,
             };
             if can_be_last {
                 last = i;
