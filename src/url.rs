@@ -14,11 +14,11 @@ impl Scanner for UrlScanner {
         // Need at least one character for scheme, and one after '//'
         if colon > 0 && after_slash_slash < length {
             if &s[colon + 1..after_slash_slash] == "//" {
-                if let Some(first) = self.find_first(s, colon) {
-                    let last = self.find_last(s, after_slash_slash);
+                if let Some(start) = self.find_start(s, colon) {
+                    let end = self.find_end(s, after_slash_slash);
                     return Some(Range {
-                        start: first,
-                        end: last + 1,
+                        start: start,
+                        end: end,
                     });
                 }
             }
@@ -29,7 +29,7 @@ impl Scanner for UrlScanner {
 
 impl UrlScanner {
     // See "scheme" in RFC 3986
-    fn find_first(&self, s: &str, colon: usize) -> Option<usize> {
+    fn find_start(&self, s: &str, colon: usize) -> Option<usize> {
         let mut first = None;
         let mut digit = None;
         for (i, c) in s[0..colon].char_indices().rev() {
@@ -56,7 +56,7 @@ impl UrlScanner {
         return first;
     }
 
-    fn find_last(&self, s: &str, start: usize) -> usize {
+    fn find_end(&self, s: &str, start: usize) -> usize {
         let mut round = 0;
         let mut square = 0;
         let mut curly = 0;
@@ -144,6 +144,10 @@ impl UrlScanner {
             }
         }
 
-        start + last
+        let mut end = start + last + 1;
+        while !s.is_char_boundary(end) {
+            end += 1;
+        }
+        end
     }
 }
