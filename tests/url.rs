@@ -28,6 +28,7 @@ fn schemes() {
     assert_linked("a.b://foo", "|a.b://foo|");
     assert_linked("ABC://foo", "|ABC://foo|");
     assert_linked(".http://example.org/", ".|http://example.org/|");
+    assert_linked("1.http://example.org/", "1.|http://example.org/|");
 }
 
 #[test]

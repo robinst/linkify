@@ -48,6 +48,7 @@ impl UrlScanner {
         // ".abc://foo" and others are ok though, as they feel more like separators.
         if let Some(first) = first {
             if let Some(digit) = digit {
+                // Comparing the byte indices with `- 1` is ok as scheme must be ASCII
                 if first > 0 && first - 1 == digit {
                     return None;
                 }
