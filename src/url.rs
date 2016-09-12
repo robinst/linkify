@@ -63,10 +63,11 @@ impl UrlScanner {
         let mut double_quote = false;
         let mut single_quote = false;
 
+        let mut previous_can_be_last = true;
         let mut last = 0;
 
         for (i, c) in s[start..].char_indices() {
-            match c {
+            let can_be_last = match c {
                 '\u{00}'...'\u{1F}' |
                 ' ' |
                 '<' |
@@ -82,66 +83,69 @@ impl UrlScanner {
                 }
                 '?' | '!' | '.' | ',' | ':' | ';' => {
                     // These may be part of an URL but not at the end
+                    false
                 }
                 '/' => {
                     // This may be part of an URL and at the end, but not if the previous character
                     // can't be the end of an URL
-                    if last == i - 1 {
-                        last = i;
-                    }
+                    previous_can_be_last
                 }
-                '(' => round += 1,
+                '(' => {
+                    round += 1;
+                    false
+                },
                 ')' => {
                     round -= 1;
-                    if round >= 0 {
-                        last = i;
-                    } else {
+                    if round < 0 {
                         // More closing than opening brackets, stop now
                         break;
                     }
+                    true
                 }
                 '[' => {
                     // Allowed in IPv6 address host
                     square += 1;
+                    false
                 }
                 ']' => {
                     // Allowed in IPv6 address host
                     square -= 1;
-                    if square >= 0 {
-                        last = i;
-                    } else {
+                    if square < 0 {
                         // More closing than opening brackets, stop now
                         break;
                     }
+                    true
                 }
                 '{' => {
                     curly += 1;
+                    false
                 }
                 '}' => {
                     curly -= 1;
-                    if curly >= 0 {
-                        last = i;
-                    } else {
+                    if curly < 0 {
                         // More closing than opening brackets, stop now
                         break;
                     }
+                    true
                 }
                 '"' => {
                     double_quote = !double_quote;
-                    if !double_quote {
-                        last = i;
-                    }
+                    // A double quote can only be the end of an URL if there's an even number
+                    !double_quote
                 }
                 '\'' => {
                     single_quote = !single_quote;
-                    if !single_quote {
-                        last = i;
-                    }
+                    // A single quote can only be the end of an URL if there's an even number
+                    !single_quote
                 }
                 _ => {
-                    last = i;
+                    true
                 }
+            };
+            if can_be_last {
+                last = i;
             }
+            previous_can_be_last = can_be_last;
         }
 
         let mut end = start + last + 1;

@@ -164,6 +164,7 @@ fn international() {
     assert_linked("http://example.org/\u{A1}", "|http://example.org/\u{A1}|");
     assert_linked("http://example.org/\u{A2}", "|http://example.org/\u{A2}|");
     assert_linked("http://example.org/\u{1F600}", "|http://example.org/\u{1F600}|");
+    assert_linked("http://example.org/\u{A2}/", "|http://example.org/\u{A2}/|");
 }
 
 fn assert_not_linked(s: &str) {
