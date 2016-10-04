@@ -1,5 +1,5 @@
 [package]
-name = "autolinker"
+name = "linkify"
 version = "0.1.0"
 authors = ["Robin Stocker <robin@nibor.org>"]
 

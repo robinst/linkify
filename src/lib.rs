@@ -1,11 +1,11 @@
 //! TODO.
 //!
 //! ```
-//! use autolinker::LinkExtractor;
+//! use linkify::LinkFinder;
 //!
 //! let input = "Have you seen http://example.org?";
-//! let extractor = LinkExtractor::new();
-//! let links: Vec<_> = extractor.extract_links(input).collect();
+//! let finder = LinkFinder::new();
+//! let links: Vec<_> = finder.find(input).collect();
 //!
 //! assert_eq!(1, links.len());
 //! let link = &links[0];
@@ -20,10 +20,11 @@ use self::url::UrlScanner;
 mod url;
 
 pub struct Link {
-    pub range: Range<usize>, // TODO: Make enum? Allow extensibility?
+    pub range: Range<usize>,
+    // TODO: Make enum? Allow extensibility?
 }
 
-pub struct LinkExtractor {}
+pub struct LinkFinder {}
 
 pub struct Links<'a> {
     input: &'a str,
@@ -64,12 +65,12 @@ trait Scanner {
     fn scan(&self, s: &str, trigger_index: usize) -> Option<Range<usize>>;
 }
 
-impl LinkExtractor {
-    pub fn new() -> LinkExtractor {
-        LinkExtractor {}
+impl LinkFinder {
+    pub fn new() -> LinkFinder {
+        LinkFinder {}
     }
 
-    pub fn extract_links<'a>(&self, s: &'a str) -> Links<'a> {
+    pub fn find<'a>(&self, s: &'a str) -> Links<'a> {
         Links {
             input: s,
             rewind: 0,

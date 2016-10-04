@@ -1,6 +1,6 @@
-extern crate autolinker;
+extern crate linkify;
 
-use autolinker::LinkExtractor;
+use linkify::LinkFinder;
 
 #[test]
 fn no_links() {
@@ -169,17 +169,17 @@ fn international() {
 }
 
 fn assert_not_linked(s: &str) {
-    let extractor = LinkExtractor::new();
-    let result = extractor.extract_links(s);
+    let finder = LinkFinder::new();
+    let result = finder.find(s);
     assert!(result.count() == 0, format!("expected no links in {:?}", s))
 }
 
 fn assert_linked(input: &str, expected: &str) {
-    let extractor = LinkExtractor::new();
+    let finder = LinkFinder::new();
     let mut actual = String::new();
 
     let mut i = 0;
-    for link in extractor.extract_links(input) {
+    for link in finder.find(input) {
         let range = link.range;
         actual.push_str(&input[i..range.start]);
         i = range.end;
