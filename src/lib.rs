@@ -15,6 +15,7 @@
 
 extern crate memchr;
 
+mod email;
 mod url;
 
 use std::ops::Range;
@@ -25,7 +26,17 @@ use url::UrlScanner;
 
 pub struct Link {
     pub range: Range<usize>,
-    // TODO: Make enum? Allow extensibility?
+    pub kind: LinkKind,
+    _extensible: (),
+}
+
+pub enum LinkKind {
+    /// URL links like "http://example.org".
+    URL,
+    /// Users should not exhaustively match this enum, because more link types may be added in the
+    /// future.
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 pub struct LinkFinder {}
@@ -54,6 +65,8 @@ impl<'a> Iterator for Links<'a> {
                             start: start,
                             end: end,
                         },
+                        kind: LinkKind::URL,
+                        _extensible: (),
                     });
                 } else {
                     // The scanner didn't find anything. But there could be more trigger characters

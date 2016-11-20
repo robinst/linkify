@@ -9,10 +9,9 @@ pub struct UrlScanner {}
 
 impl Scanner for UrlScanner {
     fn scan(&self, s: &str, colon: usize) -> Option<Range<usize>> {
-        let length = s.len();
         let after_slash_slash = colon + 3;
         // Need at least one character for scheme, and one after '//'
-        if colon > 0 && after_slash_slash < length {
+        if colon > 0 && after_slash_slash < s.len() {
             if &s[colon + 1..after_slash_slash] == "//" {
                 if let Some(start) = self.find_start(s, colon) {
                     let end = self.find_end(s, after_slash_slash);
