@@ -13,11 +13,15 @@
 //! assert_eq!("http://example.org", &input[link.range.clone()]);
 //! ```
 
-use std::ops::Range;
-
-use self::url::UrlScanner;
+extern crate memchr;
 
 mod url;
+
+use std::ops::Range;
+
+use memchr::memchr;
+
+use url::UrlScanner;
 
 pub struct Link {
     pub range: Range<usize>,
@@ -36,27 +40,29 @@ impl<'a> Iterator for Links<'a> {
     type Item = Link;
 
     fn next(&mut self) -> Option<Link> {
-        let buffer = &self.input[self.rewind..];
-        for (i, c) in buffer.char_indices() {
-            match c {
-                ':' => {
-                    if let Some(ref scanner) = self.url_scanner {
-                        if let Some(range) = scanner.scan(buffer, i) {
-                            let start = self.rewind + range.start;
-                            let end = self.rewind + range.end;
-                            self.rewind = end;
-                            return Some(Link {
-                                range: Range {
-                                    start: start,
-                                    end: end,
-                                },
-                            });
-                        }
-                    }
+        let slice = &self.input[self.rewind..];
+
+        let mut find_from = 0;
+        while let Some(i) = memchr(b':', slice[find_from..].as_bytes()) {
+            if let Some(ref scanner) = self.url_scanner {
+                if let Some(range) = scanner.scan(slice, find_from + i) {
+                    let start = self.rewind + range.start;
+                    let end = self.rewind + range.end;
+                    self.rewind = end;
+                    return Some(Link {
+                        range: Range {
+                            start: start,
+                            end: end,
+                        },
+                    });
+                } else {
+                    // The scanner didn't find anything. But there could be more trigger characters
+                    // later, so continue the search.
+                    find_from += i + 1;
                 }
-                _ => {}
             }
         }
+
         return None;
     }
 }
