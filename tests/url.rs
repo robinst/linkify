@@ -1,5 +1,8 @@
 extern crate linkify;
 
+mod common;
+
+use common::assert_linked_with;
 use linkify::LinkFinder;
 
 #[test]
@@ -170,24 +173,11 @@ fn international() {
 
 fn assert_not_linked(s: &str) {
     let finder = LinkFinder::new();
-    let result = finder.find(s);
+    let result = finder.links(s);
     assert!(result.count() == 0, format!("expected no links in {:?}", s))
 }
 
 fn assert_linked(input: &str, expected: &str) {
     let finder = LinkFinder::new();
-    let mut actual = String::new();
-
-    let mut i = 0;
-    for link in finder.find(input) {
-        let range = link.range;
-        actual.push_str(&input[i..range.start]);
-        i = range.end;
-        actual.push('|');
-        actual.push_str(&input[range]);
-        actual.push('|');
-    }
-    actual.push_str(&input[i..]);
-
-    assert_eq!(actual, expected);
+    assert_linked_with(&finder, input, expected);
 }

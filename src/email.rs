@@ -13,7 +13,7 @@ pub struct EmailScanner {
 impl Scanner for EmailScanner {
     fn scan(&self, s: &str, at: usize) -> Option<Range<usize>> {
         if let Some(start) = self.find_start(s, at) {
-            if let Some(end) = self.find_end(s, at) {
+            if let Some(end) = self.find_end(s, at + 1) {
                 return Some(Range {
                     start: start,
                     end: end,
@@ -46,13 +46,13 @@ impl EmailScanner {
     }
 
     // See "Domain" in RFC 5321, plus extension of "sub-domain" in RFC 6531
-    fn find_end(&self, s: &str, at: usize) -> Option<usize> {
+    fn find_end(&self, s: &str, start: usize) -> Option<usize> {
         let mut first_in_sub_domain = true;
         let mut can_end_sub_domain = false;
         let mut first_dot = None;
         let mut last = None;
 
-        for (i, c) in s[at + 1..].char_indices() {
+        for (i, c) in s[start..].char_indices() {
             if first_in_sub_domain {
                 if Self::sub_domain_allowed(c) {
                     last = Some(i);
@@ -81,8 +81,12 @@ impl EmailScanner {
             }
         }
 
-        if !self.domain_must_have_dot || first_dot.and_then(|d| last.map(|l| d < l)).unwrap_or(false) {
-            last
+        if let Some(last) = last {
+            if !self.domain_must_have_dot || first_dot.map(|d| d < last).unwrap_or(false) {
+                Some(start + last + 1)
+            } else {
+                None
+            }
         } else {
             None
         }
