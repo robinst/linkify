@@ -10,11 +10,10 @@ pub fn show_links(input: &str, finder: &LinkFinder) -> String {
 
     let mut i = 0;
     for link in finder.links(input) {
-        let range = link.range;
-        result.push_str(&input[i..range.start]);
-        i = range.end;
+        result.push_str(&input[i..link.start()]);
+        i = link.end();
         result.push('|');
-        result.push_str(&input[range]);
+        result.push_str(link.as_str());
         result.push('|');
     }
     result.push_str(&input[i..]);

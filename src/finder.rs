@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 use memchr::memchr;
 use memchr::memchr2;
 
@@ -7,10 +5,33 @@ use email::EmailScanner;
 use scanner::Scanner;
 use url::UrlScanner;
 
-pub struct Link {
-    pub range: Range<usize>,
-    pub kind: LinkKind,
-    _extensible: (),
+pub struct Link<'t> {
+    text: &'t str,
+    start: usize,
+    end: usize,
+    kind: LinkKind,
+}
+
+impl<'t> Link<'t> {
+    #[inline]
+    pub fn start(&self) -> usize {
+        self.start
+    }
+
+    #[inline]
+    pub fn end(&self) -> usize {
+        self.end
+    }
+
+    #[inline]
+    pub fn as_str(&self) -> &'t str {
+        &self.text[self.start..self.end]
+    }
+
+    #[inline]
+    pub fn kind(&self) -> &LinkKind {
+        &self.kind
+    }
 }
 
 pub enum LinkKind {
@@ -30,8 +51,8 @@ pub struct LinkFinder {
     url: bool,
 }
 
-pub struct Links<'a> {
-    input: &'a str,
+pub struct Links<'t> {
+    text: &'t str,
     rewind: usize,
 
     trigger_finder: Box<Fn(&[u8]) -> Option<usize>>,
@@ -67,7 +88,7 @@ impl LinkFinder {
         self
     }
 
-    pub fn links<'a>(&self, s: &'a str) -> Links<'a> {
+    pub fn links<'t>(&self, text: &'t str) -> Links<'t> {
         let email_scanner = EmailScanner { domain_must_have_dot: self.email_domain_must_have_dot };
         let url_scanner = UrlScanner {};
         let trigger_finder: Box<Fn(&[u8]) -> Option<usize>> = match (self.email, self.url) {
@@ -77,7 +98,7 @@ impl LinkFinder {
             (false, false) => Box::new(|_| None),
         };
         Links {
-            input: s,
+            text: text,
             rewind: 0,
             trigger_finder: trigger_finder,
             email_scanner: email_scanner,
@@ -86,11 +107,11 @@ impl LinkFinder {
     }
 }
 
-impl<'a> Iterator for Links<'a> {
-    type Item = Link;
+impl<'t> Iterator for Links<'t> {
+    type Item = Link<'t>;
 
-    fn next(&mut self) -> Option<Link> {
-        let slice = &self.input[self.rewind..];
+    fn next(&mut self) -> Option<Link<'t>> {
+        let slice = &self.text[self.rewind..];
 
         let mut find_from = 0;
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
@@ -104,12 +125,10 @@ impl<'a> Iterator for Links<'a> {
                 let end = self.rewind + range.end;
                 self.rewind = end;
                 return Some(Link {
-                    range: Range {
-                        start: start,
-                        end: end,
-                    },
+                    text: &self.text,
+                    start: start,
+                    end: end,
                     kind: LinkKind::URL,
-                    _extensible: (),
                 });
             } else {
                 // The scanner didn't find anything. But there could be more trigger characters

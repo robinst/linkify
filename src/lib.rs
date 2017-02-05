@@ -10,7 +10,9 @@
 //! assert_eq!(1, links.len());
 //! let link = &links[0];
 //!
-//! assert_eq!("http://example.org", &input[link.range.clone()]);
+//! assert_eq!("http://example.org", link.as_str());
+//! assert_eq!(14, link.start());
+//! assert_eq!(32, link.end());
 //! ```
 
 extern crate memchr;
