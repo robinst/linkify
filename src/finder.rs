@@ -44,9 +44,9 @@ impl<'t> Link<'t> {
 #[derive(Debug, Eq, PartialEq)]
 pub enum LinkKind {
     /// URL links like "http://example.org".
-    URL,
+    Url,
     /// E-mail links like "foo@example.org"
-    EMAIL,
+    Email,
     /// Users should not exhaustively match this enum, because more link types
     /// may be added in the future.
     #[doc(hidden)]
@@ -96,8 +96,8 @@ impl LinkFinder {
         self.url = false;
         for kind in kinds {
             match *kind {
-                LinkKind::EMAIL => { self.email = true }
-                LinkKind::URL => { self.url = true }
+                LinkKind::Email => { self.email = true }
+                LinkKind::Url => { self.url = true }
                 _ => {}
             }
         }
@@ -142,8 +142,8 @@ impl<'t> Iterator for Links<'t> {
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
             let trigger = slice.as_bytes()[find_from + i];
             let (scanner, kind): (&Scanner, LinkKind) = match trigger {
-                b':' => (&self.url_scanner, LinkKind::URL),
-                b'@' => (&self.email_scanner, LinkKind::EMAIL),
+                b':' => (&self.url_scanner, LinkKind::Url),
+                b'@' => (&self.email_scanner, LinkKind::Email),
                 _ => panic!("TODO"),
             };
             if let Some(range) = scanner.scan(slice, find_from + i) {

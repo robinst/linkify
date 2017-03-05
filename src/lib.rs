@@ -58,13 +58,13 @@
 //!
 //! let input = "http://example.com and foo@example.com";
 //! let mut finder = LinkFinder::new();
-//! finder.kinds(&[LinkKind::EMAIL]);
+//! finder.kinds(&[LinkKind::Email]);
 //! let links: Vec<_> = finder.links(input).collect();
 //!
 //! assert_eq!(1, links.len());
 //! let link = &links[0];
 //! assert_eq!("foo@example.com", link.as_str());
-//! assert_eq!(&LinkKind::EMAIL, link.kind());
+//! assert_eq!(&LinkKind::Email, link.kind());
 
 extern crate memchr;
 

@@ -75,7 +75,7 @@ fn dashes() {
 #[test]
 fn domain_must_have_dot_false() {
     let mut finder = LinkFinder::new();
-    finder.kinds(&[LinkKind::EMAIL]);
+    finder.kinds(&[LinkKind::Email]);
     finder.email_domain_must_have_dot(false);
 
     assert_linked_with(&finder, "a@b", "|a@b|");
@@ -106,13 +106,13 @@ fn trigger_overlap() {
 
 fn assert_not_linked(s: &str) {
     let mut finder = LinkFinder::new();
-    finder.kinds(&[LinkKind::EMAIL]);
+    finder.kinds(&[LinkKind::Email]);
     let result = finder.links(s);
     assert!(result.count() == 0, format!("expected no links in {:?}", s))
 }
 
 fn assert_linked(input: &str, expected: &str) {
     let mut finder = LinkFinder::new();
-    finder.kinds(&[LinkKind::EMAIL]);
+    finder.kinds(&[LinkKind::Email]);
     assert_linked_with(&finder, input, expected);
 }
