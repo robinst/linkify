@@ -4,7 +4,7 @@
 //! Your reaction might be: "Do I need a library for this? Why not a regex?".
 //! Let's look at a few cases:
 //!
-//! * `http://example.com/.` should not include the trailing dot
+//! * In `http://example.com/.` the link should not include the trailing dot
 //! * `http://example.com/,` should not include the trailing comma
 //! * `(http://example.com/)` should not include the parens
 //!
@@ -65,6 +65,7 @@
 //! let link = &links[0];
 //! assert_eq!("foo@example.com", link.as_str());
 //! assert_eq!(&LinkKind::Email, link.kind());
+//! ```
 
 extern crate memchr;
 
