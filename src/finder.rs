@@ -5,9 +5,8 @@ use email::EmailScanner;
 use scanner::Scanner;
 use url::UrlScanner;
 
-// TODO: Debug and other traits on the public types?
-
 /// A link found in the input text.
+#[derive(Debug)]
 pub struct Link<'t> {
     text: &'t str,
     start: usize,

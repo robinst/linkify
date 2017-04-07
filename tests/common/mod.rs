@@ -19,4 +19,3 @@ pub fn show_links(input: &str, finder: &LinkFinder) -> String {
     result.push_str(&input[i..]);
     result
 }
-
