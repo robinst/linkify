@@ -52,12 +52,12 @@ impl EmailScanner {
         let mut first_in_sub_domain = true;
         let mut can_end_sub_domain = false;
         let mut first_dot = None;
-        let mut last = None;
+        let mut end = None;
 
         for (i, c) in s.char_indices() {
             if first_in_sub_domain {
                 if Self::sub_domain_allowed(c) {
-                    last = Some(i);
+                    end = Some(i + c.len_utf8());
                     first_in_sub_domain = false;
                     can_end_sub_domain = true;
                 } else {
@@ -75,7 +75,7 @@ impl EmailScanner {
                 } else if c == '-' {
                     can_end_sub_domain = false;
                 } else if Self::sub_domain_allowed(c) {
-                    last = Some(i);
+                    end = Some(i + c.len_utf8());
                     can_end_sub_domain = true;
                 } else {
                     break;
@@ -83,9 +83,9 @@ impl EmailScanner {
             }
         }
 
-        if let Some(last) = last {
-            if !self.domain_must_have_dot || first_dot.map(|d| d < last).unwrap_or(false) {
-                Some(last + 1)
+        if let Some(end) = end {
+            if !self.domain_must_have_dot || first_dot.map(|d| d < end).unwrap_or(false) {
+                Some(end)
             } else {
                 None
             }

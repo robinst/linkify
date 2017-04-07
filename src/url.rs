@@ -65,7 +65,7 @@ impl UrlScanner {
         let mut single_quote = false;
 
         let mut previous_can_be_last = true;
-        let mut last = 0;
+        let mut end = 0;
 
         for (i, c) in s.char_indices() {
             let can_be_last = match c {
@@ -142,15 +142,11 @@ impl UrlScanner {
                 _ => true,
             };
             if can_be_last {
-                last = i;
+                end = i + c.len_utf8();
             }
             previous_can_be_last = can_be_last;
         }
 
-        let mut end = last + 1;
-        while !s.is_char_boundary(end) {
-            end += 1;
-        }
         end
     }
 }

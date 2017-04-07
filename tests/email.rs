@@ -104,6 +104,11 @@ fn trigger_overlap() {
     assert_linked_with(&finder, "www@example.com", "|www@example.com|");
 }
 
+#[test]
+fn fuzz() {
+    assert_linked("a@a.ϸ", "|a@a.ϸ|");
+}
+
 fn assert_not_linked(s: &str) {
     let mut finder = LinkFinder::new();
     finder.kinds(&[LinkKind::Email]);
