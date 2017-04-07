@@ -12,11 +12,12 @@ pub struct EmailScanner {
 
 impl Scanner for EmailScanner {
     fn scan(&self, s: &str, at: usize) -> Option<Range<usize>> {
-        if let Some(start) = self.find_start(s, at) {
-            if let Some(end) = self.find_end(s, at + 1) {
+        if let Some(start) = self.find_start(&s[0..at]) {
+            let after = at + 1;
+            if let Some(end) = self.find_end(&s[after..]) {
                 return Some(Range {
                     start: start,
-                    end: end,
+                    end: after + end,
                 });
             }
         }
@@ -26,10 +27,10 @@ impl Scanner for EmailScanner {
 
 impl EmailScanner {
     // See "Local-part" in RFC 5321, plus extensions in RFC 6531
-    fn find_start(&self, s: &str, at: usize) -> Option<usize> {
+    fn find_start(&self, s: &str) -> Option<usize> {
         let mut first = None;
         let mut atom_boundary = true;
-        for (i, c) in s[0..at].char_indices().rev() {
+        for (i, c) in s.char_indices().rev() {
             if Self::local_atom_allowed(c) {
                 first = Some(i);
                 atom_boundary = false;
@@ -46,13 +47,13 @@ impl EmailScanner {
     }
 
     // See "Domain" in RFC 5321, plus extension of "sub-domain" in RFC 6531
-    fn find_end(&self, s: &str, start: usize) -> Option<usize> {
+    fn find_end(&self, s: &str) -> Option<usize> {
         let mut first_in_sub_domain = true;
         let mut can_end_sub_domain = false;
         let mut first_dot = None;
         let mut last = None;
 
-        for (i, c) in s[start..].char_indices() {
+        for (i, c) in s.char_indices() {
             if first_in_sub_domain {
                 if Self::sub_domain_allowed(c) {
                     last = Some(i);
@@ -83,7 +84,7 @@ impl EmailScanner {
 
         if let Some(last) = last {
             if !self.domain_must_have_dot || first_dot.map(|d| d < last).unwrap_or(false) {
-                Some(start + last + 1)
+                Some(last + 1)
             } else {
                 None
             }
