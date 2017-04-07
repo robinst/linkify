@@ -15,10 +15,11 @@ impl Scanner for UrlScanner {
             if s[colon..].starts_with("://") {
                 if let Some(start) = self.find_start(&s[0..colon]) {
                     let end = self.find_end(&s[after_slash_slash..]);
-                    return Some(Range {
+                    let range = Range {
                         start: start,
                         end: after_slash_slash + end,
-                    });
+                    };
+                    return Some(range);
                 }
             }
         }

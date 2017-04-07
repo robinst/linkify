@@ -95,8 +95,8 @@ impl LinkFinder {
         self.url = false;
         for kind in kinds {
             match *kind {
-                LinkKind::Email => { self.email = true }
-                LinkKind::Url => { self.url = true }
+                LinkKind::Email => self.email = true,
+                LinkKind::Url => self.url = true,
                 _ => {}
             }
         }
@@ -149,12 +149,13 @@ impl<'t> Iterator for Links<'t> {
                 let start = self.rewind + range.start;
                 let end = self.rewind + range.end;
                 self.rewind = end;
-                return Some(Link {
+                let link = Link {
                     text: &self.text,
                     start: start,
                     end: end,
                     kind: kind,
-                });
+                };
+                return Some(link);
             } else {
                 // The scanner didn't find anything. But there could be more
                 // trigger characters later, so continue the search.

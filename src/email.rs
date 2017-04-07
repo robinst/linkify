@@ -15,10 +15,11 @@ impl Scanner for EmailScanner {
         if let Some(start) = self.find_start(&s[0..at]) {
             let after = at + 1;
             if let Some(end) = self.find_end(&s[after..]) {
-                return Some(Range {
+                let range = Range {
                     start: start,
                     end: after + end,
-                });
+                };
+                return Some(range);
             }
         }
         return None;
@@ -96,16 +97,17 @@ impl EmailScanner {
     // See "Atom" in RFC 5321, "atext" in RFC 5322
     fn local_atom_allowed(c: char) -> bool {
         match c {
-            'a' ... 'z' | 'A' ... 'Z' | '0' ... '9' | '!' | '#' | '$' | '%' | '&' | '\'' | '*' |
+            'a'...'z' | 'A'...'Z' | '0'...'9' | '!' | '#' | '$' | '%' | '&' | '\'' | '*' |
             '+' | '-' | '/' | '=' | '?' | '^' | '_' | '`' | '{' | '|' | '}' | '~' => true,
             _ => c >= '\u{80}',
         }
     }
 
-    // See "sub-domain" in RFC 5321. Extension in RFC 6531 is simplified, this can also match invalid domains.
+    // See "sub-domain" in RFC 5321. Extension in RFC 6531 is simplified,
+    // this can also match invalid domains.
     fn sub_domain_allowed(c: char) -> bool {
         match c {
-            'a' ... 'z' | 'A' ... 'Z' | '0' ... '9' => true,
+            'a'...'z' | 'A'...'Z' | '0'...'9' => true,
             _ => c >= '\u{80}',
         }
     }
