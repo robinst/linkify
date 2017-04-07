@@ -171,6 +171,11 @@ fn international() {
     assert_linked("http://example.org/\u{A2}/", "|http://example.org/\u{A2}/|");
 }
 
+#[test]
+fn fuzz() {
+    assert_not_linked("ab:/ϸ");
+}
+
 fn assert_not_linked(s: &str) {
     let finder = LinkFinder::new();
     let result = finder.links(s);

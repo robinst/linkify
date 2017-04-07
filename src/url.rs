@@ -12,12 +12,12 @@ impl Scanner for UrlScanner {
         let after_slash_slash = colon + 3;
         // Need at least one character for scheme, and one after '//'
         if colon > 0 && after_slash_slash < s.len() {
-            if &s[colon + 1..after_slash_slash] == "//" {
-                if let Some(start) = self.find_start(s, colon) {
-                    let end = self.find_end(s, after_slash_slash);
+            if s[colon..].starts_with("://") {
+                if let Some(start) = self.find_start(&s[0..colon]) {
+                    let end = self.find_end(&s[after_slash_slash..]);
                     return Some(Range {
                         start: start,
-                        end: end,
+                        end: after_slash_slash + end,
                     });
                 }
             }
@@ -28,10 +28,10 @@ impl Scanner for UrlScanner {
 
 impl UrlScanner {
     // See "scheme" in RFC 3986
-    fn find_start(&self, s: &str, colon: usize) -> Option<usize> {
+    fn find_start(&self, s: &str) -> Option<usize> {
         let mut first = None;
         let mut digit = None;
-        for (i, c) in s[0..colon].char_indices().rev() {
+        for (i, c) in s.char_indices().rev() {
             match c {
                 'a'...'z' | 'A'...'Z' => first = Some(i),
                 '0'...'9' => digit = Some(i),
@@ -56,7 +56,7 @@ impl UrlScanner {
         return first;
     }
 
-    fn find_end(&self, s: &str, start: usize) -> usize {
+    fn find_end(&self, s: &str) -> usize {
         let mut round = 0;
         let mut square = 0;
         let mut curly = 0;
@@ -66,7 +66,7 @@ impl UrlScanner {
         let mut previous_can_be_last = true;
         let mut last = 0;
 
-        for (i, c) in s[start..].char_indices() {
+        for (i, c) in s.char_indices() {
             let can_be_last = match c {
                 '\u{00}'...'\u{1F}' |
                 ' ' |
@@ -146,7 +146,7 @@ impl UrlScanner {
             previous_can_be_last = can_be_last;
         }
 
-        let mut end = start + last + 1;
+        let mut end = last + 1;
         while !s.is_char_boundary(end) {
             end += 1;
         }
