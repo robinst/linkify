@@ -76,3 +76,8 @@ Linkify is distributed under the terms of both the MIT license and the
 Apache License (Version 2.0). See [LICENSE-APACHE](LICENSE-APACHE) and
 [LICENSE-MIT](LICENSE-MIT) for details. Opening a pull requests is
 assumed to signal agreement with these licensing terms.
+
+[RFC 3986]: https://tools.ietf.org/search/rfc3986
+[RFC 3987]: https://tools.ietf.org/search/rfc3987
+[RFC 5321]: https://tools.ietf.org/search/rfc5321
+[RFC 6531]: https://tools.ietf.org/search/rfc6531

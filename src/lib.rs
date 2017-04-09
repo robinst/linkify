@@ -66,6 +66,11 @@
 //! assert_eq!("foo@example.com", link.as_str());
 //! assert_eq!(&LinkKind::Email, link.kind());
 //! ```
+//!
+//! [RFC 3986]: https://tools.ietf.org/search/rfc3986
+//! [RFC 3987]: https://tools.ietf.org/search/rfc3987
+//! [RFC 5321]: https://tools.ietf.org/search/rfc5321
+//! [RFC 6531]: https://tools.ietf.org/search/rfc6531
 
 extern crate memchr;
 
