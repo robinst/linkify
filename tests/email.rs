@@ -25,7 +25,8 @@ fn simple() {
 #[test]
 fn allowed_text() {
     // I know, I know...
-    assert_linked("#!$%&'*+-/=?^_`{}|~@example.org", "|#!$%&'*+-/=?^_`{}|~@example.org|");
+    assert_linked("#!$%&'*+-/=?^_`{}|~@example.org",
+                  "|#!$%&'*+-/=?^_`{}|~@example.org|");
 }
 
 #[test]
@@ -86,14 +87,17 @@ fn domain_must_have_dot_false() {
 
 #[test]
 fn multiple() {
-    assert_linked("a@example.com b@example.com", "|a@example.com| |b@example.com|");
-    assert_linked("a@example.com @ b@example.com", "|a@example.com| @ |b@example.com|");
+    assert_linked("a@example.com b@example.com",
+                  "|a@example.com| |b@example.com|");
+    assert_linked("a@example.com @ b@example.com",
+                  "|a@example.com| @ |b@example.com|");
 }
 
 #[test]
 fn international() {
     assert_linked("üñîçøðé@example.com", "|üñîçøðé@example.com|");
-    assert_linked("üñîçøðé@üñîçøðé.com", "|üñîçøðé@üñîçøðé.com|");
+    assert_linked("üñîçøðé@üñîçøðé.com",
+                  "|üñîçøðé@üñîçøðé.com|");
 }
 
 #[test]

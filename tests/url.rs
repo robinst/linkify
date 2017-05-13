@@ -167,7 +167,8 @@ fn international() {
                   "|http://üñîçøðé.com/ä|");
     assert_linked("http://example.org/\u{A1}", "|http://example.org/\u{A1}|");
     assert_linked("http://example.org/\u{A2}", "|http://example.org/\u{A2}|");
-    assert_linked("http://example.org/\u{1F600}", "|http://example.org/\u{1F600}|");
+    assert_linked("http://example.org/\u{1F600}",
+                  "|http://example.org/\u{1F600}|");
     assert_linked("http://example.org/\u{A2}/", "|http://example.org/\u{A2}/|");
 }
 
