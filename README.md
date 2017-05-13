@@ -6,6 +6,8 @@ plain text. It's smart about where a link ends, such as with trailing
 punctuation.
 
 [![Build Status](https://travis-ci.org/robinst/linkify.svg?branch=master)](https://travis-ci.org/robinst/linkify)
+[![Documentation](https://docs.rs/linkify/badge.svg)](https://docs.rs/linkify)
+[![Crate](https://img.shields.io/crates/v/linkify.svg)](https://crates.io/crates/linkify)
 
 ## Introduction
 
@@ -63,6 +65,8 @@ let link = &links[0];
 assert_eq!("foo@example.com", link.as_str());
 assert_eq!(&LinkKind::Email, link.kind());
 ```
+
+See full documentation on [docs.rs](https://docs.rs/linkify).
 
 ## Conformance
 

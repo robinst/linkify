@@ -19,19 +19,6 @@
 //!
 //! In addition to URLs, it can also find emails.
 //!
-//! ### Conformance
-//!
-//! This crates makes an effort to respect the various standards, namely:
-//!
-//! * [RFC 3986] and [RFC 3987] for URLs
-//! * [RFC 5321] and [RFC 6531] for emails (except IP addresses and quoting)
-//!
-//! At the same time, it does not guarantee that the returned links are valid.
-//! If in doubt, it rather returns a link than skipping it.
-//!
-//! If you need to validate URLs, e.g. for checking TLDs, use another library on
-//! the returned links.
-//!
 //! ### Usage
 //!
 //! Basic usage:
@@ -66,6 +53,19 @@
 //! assert_eq!("foo@example.com", link.as_str());
 //! assert_eq!(&LinkKind::Email, link.kind());
 //! ```
+//!
+//! ### Conformance
+//!
+//! This crates makes an effort to respect the various standards, namely:
+//!
+//! * [RFC 3986] and [RFC 3987] for URLs
+//! * [RFC 5321] and [RFC 6531] for emails (except IP addresses and quoting)
+//!
+//! At the same time, it does not guarantee that the returned links are valid.
+//! If in doubt, it rather returns a link than skipping it.
+//!
+//! If you need to validate URLs, e.g. for checking TLDs, use another library on
+//! the returned links.
 //!
 //! [RFC 3986]: https://tools.ietf.org/search/rfc3986
 //! [RFC 3987]: https://tools.ietf.org/search/rfc3987
