@@ -32,6 +32,8 @@ In addition to URLs, it can also find emails.
 Basic usage:
 
 ```rust
+extern crate linkify;
+
 use linkify::LinkFinder;
 
 let input = "Have you seen http://example.com?";
@@ -74,6 +76,11 @@ If in doubt, it rather returns a link than skipping it.
 
 If you need to validate URLs, e.g. for checking TLDs, use another library on
 the returned links.
+
+## Contributing
+
+Pull requests, issues and comments welcome! Make sure to add tests for
+new features and bug fixes.
 
 ## License
 
