@@ -1,8 +1,13 @@
 Linkify
 =======
 
-Linkify is a library to find links such as URLs and email addresses in plain
-text. It's smart about where a link ends, such as with trailing punctuation.
+Linkify is a Rust library to find links such as URLs and email addresses in
+plain text. It's smart about where a link ends, such as with trailing
+punctuation.
+
+[![Build Status](https://travis-ci.org/robinst/linkify.svg?branch=master)](https://travis-ci.org/robinst/linkify)
+
+## Introduction
 
 Your reaction might be: "Do I need a library for this? Why not a regex?".
 Let's look at a few cases:
@@ -21,19 +26,6 @@ This library behaves as you'd expect in the above cases and many more.
 It uses a simple scan with linear runtime.
 
 In addition to URLs, it can also find emails.
-
-## Conformance
-
-This crates makes an effort to respect the various standards, namely:
-
-* [RFC 3986] and [RFC 3987] for URLs
-* [RFC 5321] and [RFC 6531] for emails (except IP addresses and quoting)
-
-At the same time, it does not guarantee that the returned links are valid.
-If in doubt, it rather returns a link than skipping it.
-
-If you need to validate URLs, e.g. for checking TLDs, use another library on
-the returned links.
 
 ## Usage
 
@@ -69,6 +61,19 @@ let link = &links[0];
 assert_eq!("foo@example.com", link.as_str());
 assert_eq!(&LinkKind::Email, link.kind());
 ```
+
+## Conformance
+
+This crates makes an effort to respect the various standards, namely:
+
+* [RFC 3986] and [RFC 3987] for URLs
+* [RFC 5321] and [RFC 6531] for emails (except IP addresses and quoting)
+
+At the same time, it does not guarantee that the returned links are valid.
+If in doubt, it rather returns a link than skipping it.
+
+If you need to validate URLs, e.g. for checking TLDs, use another library on
+the returned links.
 
 ## License
 
