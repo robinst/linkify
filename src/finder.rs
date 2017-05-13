@@ -143,7 +143,7 @@ impl<'t> Iterator for Links<'t> {
             let (scanner, kind): (&Scanner, LinkKind) = match trigger {
                 b':' => (&self.url_scanner, LinkKind::Url),
                 b'@' => (&self.email_scanner, LinkKind::Email),
-                _ => panic!("TODO"),
+                _ => unreachable!(),
             };
             if let Some(range) = scanner.scan(slice, find_from + i) {
                 let start = self.rewind + range.start;
