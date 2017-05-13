@@ -180,7 +180,7 @@ fn fuzz() {
 fn assert_not_linked(s: &str) {
     let finder = LinkFinder::new();
     let result = finder.links(s);
-    assert!(result.count() == 0, format!("expected no links in {:?}", s))
+    assert_eq!(result.count(), 0, "expected no links in {:?}", s);
 }
 
 fn assert_linked(input: &str, expected: &str) {

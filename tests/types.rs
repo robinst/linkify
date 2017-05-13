@@ -23,7 +23,7 @@ fn equality() {
     // Check that link has Debug
     println!("{:?}", link);
 
-    assert!(link.kind() == &LinkKind::Url);
+    assert_eq!(link.kind(), &LinkKind::Url);
 }
 
 fn check_send<T: Send>() {}

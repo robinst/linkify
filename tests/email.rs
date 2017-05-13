@@ -117,7 +117,7 @@ fn assert_not_linked(s: &str) {
     let mut finder = LinkFinder::new();
     finder.kinds(&[LinkKind::Email]);
     let result = finder.links(s);
-    assert!(result.count() == 0, format!("expected no links in {:?}", s))
+    assert_eq!(result.count(), 0, "expected no links in {:?}", s);
 }
 
 fn assert_linked(input: &str, expected: &str) {
