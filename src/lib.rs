@@ -24,7 +24,7 @@
 //! Basic usage:
 //!
 //! ```
-//! use linkify::LinkFinder;
+//! use linkify::{LinkFinder, LinkKind};
 //!
 //! let input = "Have you seen http://example.com?";
 //! let finder = LinkFinder::new();
@@ -36,6 +36,7 @@
 //! assert_eq!("http://example.com", link.as_str());
 //! assert_eq!(14, link.start());
 //! assert_eq!(32, link.end());
+//! assert_eq!(&LinkKind::Url, link.kind());
 //! ```
 //!
 //! Restrict the kinds of links:
