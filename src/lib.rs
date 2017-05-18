@@ -11,7 +11,7 @@
 //! Seems simple enough. But then we also have these cases:
 //!
 //! * `https://en.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)` should include the trailing paren
-//! * `http://example.com/ä` should also work for Unicode (including Emoji)
+//! * `http://üñîçøðé.com/ä` should also work for Unicode (including Emoji and Punycode)
 //! * `<http://example.com/>` should not include angle brackets
 //!
 //! This library behaves as you'd expect in the above cases and many more.

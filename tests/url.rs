@@ -170,6 +170,7 @@ fn international() {
     assert_linked("http://example.org/\u{1F600}",
                   "|http://example.org/\u{1F600}|");
     assert_linked("http://example.org/\u{A2}/", "|http://example.org/\u{A2}/|");
+    assert_linked("http://xn--c1h.example.com/", "|http://xn--c1h.example.com/|");
 }
 
 #[test]
