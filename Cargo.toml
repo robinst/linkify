@@ -1,6 +1,6 @@
 [package]
 name = "linkify"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Robin Stocker <robin@nibor.org>"]
 license = "MIT/Apache-2.0"
 readme = "README.md"
