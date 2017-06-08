@@ -1,3 +1,5 @@
+use std::fmt;
+
 use memchr::memchr;
 use memchr::memchr2;
 
@@ -40,6 +42,7 @@ impl<'t> Link<'t> {
     }
 }
 
+/// The type of link that was found.
 #[derive(Debug, Eq, PartialEq)]
 pub enum LinkKind {
     /// URL links like "http://example.org".
@@ -53,6 +56,7 @@ pub enum LinkKind {
 }
 
 /// A configured link finder.
+#[derive(Debug)]
 pub struct LinkFinder {
     email: bool,
     email_domain_must_have_dot: bool,
@@ -164,5 +168,13 @@ impl<'t> Iterator for Links<'t> {
         }
 
         return None;
+    }
+}
+
+impl<'t> fmt::Debug for Links<'t> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Links")
+            .field("text", &self.text)
+            .finish()
     }
 }
