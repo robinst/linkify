@@ -1,3 +1,7 @@
+# 0.1.2 (2017-06-09)
+
+* Fix `html_root_url` attribute
+
 # 0.1.1 (2017-06-08)
 
 * More docs
