@@ -14,12 +14,13 @@ impl Scanner for UrlScanner {
         if colon > 0 && after_slash_slash < s.len() {
             if s[colon..].starts_with("://") {
                 if let Some(start) = self.find_start(&s[0..colon]) {
-                    let end = self.find_end(&s[after_slash_slash..]);
-                    let range = Range {
-                        start: start,
-                        end: after_slash_slash + end,
-                    };
-                    return Some(range);
+                    if let Some(end) = self.find_end(&s[after_slash_slash..]) {
+                        let range = Range {
+                            start: start,
+                            end: after_slash_slash + end,
+                        };
+                        return Some(range);
+                    }
                 }
             }
         }
@@ -57,7 +58,7 @@ impl UrlScanner {
         return first;
     }
 
-    fn find_end(&self, s: &str) -> usize {
+    fn find_end(&self, s: &str) -> Option<usize> {
         let mut round = 0;
         let mut square = 0;
         let mut curly = 0;
@@ -65,7 +66,7 @@ impl UrlScanner {
         let mut single_quote = false;
 
         let mut previous_can_be_last = true;
-        let mut end = 0;
+        let mut end = None;
 
         for (i, c) in s.char_indices() {
             let can_be_last = match c {
@@ -142,7 +143,7 @@ impl UrlScanner {
                 _ => true,
             };
             if can_be_last {
-                end = i + c.len_utf8();
+                end = Some(i + c.len_utf8());
             }
             previous_can_be_last = can_be_last;
         }
