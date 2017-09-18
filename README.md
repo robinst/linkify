@@ -5,9 +5,10 @@ Linkify is a Rust library to find links such as URLs and email addresses in
 plain text. It's smart about where a link ends, such as with trailing
 punctuation.
 
-[![Build Status](https://travis-ci.org/robinst/linkify.svg?branch=master)](https://travis-ci.org/robinst/linkify)
 [![Documentation](https://docs.rs/linkify/badge.svg)](https://docs.rs/linkify)
 [![Crate](https://img.shields.io/crates/v/linkify.svg)](https://crates.io/crates/linkify)
+[![Build Status](https://travis-ci.org/robinst/linkify.svg?branch=master)](https://travis-ci.org/robinst/linkify)
+[![codecov](https://codecov.io/gh/robinst/linkify/branch/master/graph/badge.svg)](https://codecov.io/gh/robinst/linkify)
 
 ## Introduction
 
