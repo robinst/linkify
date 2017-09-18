@@ -6,5 +6,8 @@ Cargo.lock
 .DS_Store
 
 # IDEA
-.idea
+.idea/
 *.iml
+
+# VS Code
+.vscode/
