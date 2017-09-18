@@ -35,8 +35,14 @@ fn schemes() {
 }
 
 #[test]
-fn host_too_short() {
+fn authority() {
     assert_not_linked("ab://");
+    assert_not_linked("http://");
+    assert_not_linked("http:// ");
+    assert_not_linked("\"http://\"");
+    assert_not_linked("\"http://...\", ");
+
+    assert_linked("http://a.", "|http://a|.");
 }
 
 #[test]
@@ -179,9 +185,7 @@ fn fuzz() {
 }
 
 fn assert_not_linked(s: &str) {
-    let finder = LinkFinder::new();
-    let result = finder.links(s);
-    assert_eq!(result.count(), 0, "expected no links in {:?}", s);
+    assert_linked(s, s);
 }
 
 fn assert_linked(input: &str, expected: &str) {
