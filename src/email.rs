@@ -4,7 +4,7 @@ use scanner::Scanner;
 
 /// Scan for email address starting from the trigger character "@".
 ///
-/// Based on RFC 6531, but also scans invalid IDN. Doesn't match IP address in domain part or
+/// Based on RFC 6531, but also accepts invalid IDNs. Doesn't try to handle IP addresses in domain part or
 /// quoting in local part.
 pub struct EmailScanner {
     pub domain_must_have_dot: bool,
