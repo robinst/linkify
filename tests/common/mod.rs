@@ -8,14 +8,14 @@ pub fn assert_linked_with(finder: &LinkFinder, input: &str, expected: &str) {
 pub fn show_links(input: &str, finder: &LinkFinder) -> String {
     let mut result = String::new();
 
-    let mut i = 0;
-    for link in finder.links(input) {
-        result.push_str(&input[i..link.start()]);
-        i = link.end();
-        result.push('|');
-        result.push_str(link.as_str());
-        result.push('|');
+    for span in finder.spans(input) {
+        if span.kind().is_some() {
+            result.push('|');
+            result.push_str(span.as_str());
+            result.push('|');
+        } else {
+            result.push_str(span.as_str());
+        }
     }
-    result.push_str(&input[i..]);
     result
 }
