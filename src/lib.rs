@@ -55,6 +55,33 @@
 //! assert_eq!(&LinkKind::Email, link.kind());
 //! ```
 //!
+//! Split the text into consecutive spans (mixed links and plain text).
+//!
+//! ```
+//! use linkify::{LinkFinder, LinkKind};
+//!
+//! let input = "Have you seen http://example.com?";
+//! let finder = LinkFinder::new();
+//! let spans: Vec<_> = finder.spans(input).collect();
+//!
+//! assert_eq!(3, spans.len());
+//!
+//! assert_eq!("Have you seen ", spans[0].as_str());
+//! assert_eq!(0, spans[0].start());
+//! assert_eq!(14, spans[0].end());
+//! assert_eq!(None, spans[0].kind());
+//!
+//! assert_eq!("http://example.com", spans[1].as_str());
+//! assert_eq!(14, spans[1].start());
+//! assert_eq!(32, spans[1].end());
+//! assert_eq!(Some(&LinkKind::Url), spans[1].kind());
+//!
+//! assert_eq!("?", spans[2].as_str());
+//! assert_eq!(32, spans[2].start());
+//! assert_eq!(33, spans[2].end());
+//! assert_eq!(None, spans[2].kind());
+//! ```
+//!
 //! ### Conformance
 //!
 //! This crates makes an effort to respect the various standards, namely:
@@ -89,3 +116,4 @@ pub use finder::Link;
 pub use finder::LinkFinder;
 pub use finder::LinkKind;
 pub use finder::Links;
+pub use finder::{Span, Spans};

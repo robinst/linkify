@@ -1,4 +1,5 @@
 use std::fmt;
+use std::iter::Peekable;
 
 use memchr::memchr;
 use memchr::memchr2;
@@ -55,6 +56,46 @@ pub enum LinkKind {
     __Nonexhaustive,
 }
 
+/// Span within the input text.
+///
+/// A span represents a substring of the input text,
+/// which can either be a link, or plain text.
+#[derive(Debug)]
+pub struct Span<'t> {
+    text: &'t str,
+    start: usize,
+    end: usize,
+    kind: Option<LinkKind>,
+}
+
+impl<'t> Span<'t> {
+    /// The start index of the span within the input text.
+    #[inline]
+    pub fn start(&self) -> usize {
+        self.start
+    }
+
+    /// The end index of the span.
+    #[inline]
+    pub fn end(&self) -> usize {
+        self.end
+    }
+
+    /// Get the span text as a `str`.
+    #[inline]
+    pub fn as_str(&self) -> &'t str {
+        &self.text[self.start..self.end]
+    }
+
+    /// The type of link included in the span, if any.
+    ///
+    /// Returns `None` if the span represents plain text.
+    #[inline]
+    pub fn kind(&self) -> Option<&LinkKind> {
+        self.kind.as_ref()
+    }
+}
+
 /// A configured link finder.
 #[derive(Debug)]
 pub struct LinkFinder {
@@ -71,6 +112,13 @@ pub struct Links<'t> {
     trigger_finder: Box<Fn(&[u8]) -> Option<usize>>,
     email_scanner: EmailScanner,
     url_scanner: UrlScanner,
+}
+
+/// Iterator over spans.
+pub struct Spans<'t> {
+    text: &'t str,
+    position: usize,
+    links: Peekable<Links<'t>>
 }
 
 impl LinkFinder {
@@ -112,6 +160,23 @@ impl LinkFinder {
     /// Returns an `Iterator` which only scans when `next` is called (lazy).
     pub fn links<'t>(&self, text: &'t str) -> Links<'t> {
         Links::new(text, self.url, self.email, self.email_domain_must_have_dot)
+    }
+
+    /// Iterate over spans in the specified input text.
+    ///
+    /// A span represents a substring of the input text,
+    /// which can either be a link, or plain text.
+    ///
+    /// Returns an `Iterator` which only scans when `next` is called (lazy).
+    ///
+    /// The spans that are returned by the `Iterator` are consecutive,
+    /// and when combined represent the input text in its entirety.
+    pub fn spans<'t>(&self, text: &'t str) -> Spans<'t> {
+        Spans {
+            text: text,
+            position: 0,
+            links: self.links(text).peekable()
+        }
     }
 }
 
@@ -174,6 +239,56 @@ impl<'t> Iterator for Links<'t> {
 impl<'t> fmt::Debug for Links<'t> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Links")
+            .field("text", &self.text)
+            .finish()
+    }
+}
+
+impl<'t> Iterator for Spans<'t> {
+    type Item = Span<'t>;
+
+    fn next(&mut self) -> Option<Span<'t>> {
+        match self.links.peek() {
+            Some(ref link) => {
+                if self.position < link.start {
+                    let span = Span {
+                        text: &self.text,
+                        start: self.position,
+                        end: link.start,
+                        kind: None
+                    };
+                    self.position = link.start;
+                    return Some(span);
+                }
+            },
+            None => {
+                if self.position < self.text.len() {
+                    let span = Span {
+                        text: &self.text,
+                        start: self.position,
+                        end: self.text.len(),
+                        kind: None
+                    };
+                    self.position = self.text.len();
+                    return Some(span);
+                }
+            }
+        };
+        self.links.next().map(|link| {
+            self.position = link.end;
+            Span {
+                text: &self.text,
+                start: link.start,
+                end: link.end,
+                kind: Some(link.kind)
+            }
+        })
+    }
+}
+
+impl<'t> fmt::Debug for Spans<'t> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Spans")
             .field("text", &self.text)
             .finish()
     }
