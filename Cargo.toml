@@ -11,4 +11,4 @@ categories = ["text-processing"]
 keywords = ["web", "text", "url"]
 
 [dependencies]
-memchr = "1.0.1"
+memchr = "2.0.1"
