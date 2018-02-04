@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [0.3.1] - 2018-02-04
+### Changed
+- Bump memchr dependency to 2 (for wasm support)
+
 ## [0.3.0] - 2018-01-25
 ### Added
 - New API to iterate over both plain text and link spans using the
