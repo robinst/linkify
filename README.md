@@ -28,7 +28,7 @@ Seems simple enough. But then we also have these cases:
 This library behaves as you'd expect in the above cases and many more.
 It uses a simple scan with linear runtime.
 
-In addition to URLs, it can also find emails.
+In addition to URLs, it can also find email addresses.
 
 ## Usage
 
@@ -75,7 +75,7 @@ See full documentation on [docs.rs](https://docs.rs/linkify).
 This crates makes an effort to respect the various standards, namely:
 
 * [RFC 3986] and [RFC 3987] for URLs
-* [RFC 5321] and [RFC 6531] for emails (except IP addresses and quoting)
+* [RFC 5321] and [RFC 6531] for email addresses (except IP addresses and quoting)
 
 At the same time, it does not guarantee that the returned links are valid.
 If in doubt, it rather returns a link than skipping it.
