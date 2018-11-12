@@ -121,17 +121,36 @@ fn matching_punctuation_tricky() {
     assert_linked("http://example.org/]()", "|http://example.org/|]()");
 }
 
+fn quote(quote_char: char) {
+    assert_linked(&format!("http://example.org/{}_(foo)", quote_char),
+                  &format!("|http://example.org/{}_(foo)|", quote_char));
+    assert_linked(&format!("http://example.org/{}_(foo){0}", quote_char),
+                  &format!("|http://example.org/{}_(foo){0}|", quote_char));
+    assert_linked(&format!("http://example.org/{}{0}", quote_char),
+                  &format!("|http://example.org/{}{0}|", quote_char));
+    assert_linked(&format!("http://example.org/{}{0}{0}", quote_char),
+                  &format!("|http://example.org/{}{0}|{0}", quote_char));
+    assert_linked(&format!("http://example.org/{}.", quote_char),
+                  &format!("|http://example.org/|{}.", quote_char));
+    assert_linked(&format!("http://example.org/{}a", quote_char),
+                  &format!("|http://example.org/{}a|", quote_char));
+    assert_linked(&format!("http://example.org/it{}s", quote_char),
+                  &format!("|http://example.org/it{}s|", quote_char));
+}
+
 #[test]
-fn quotes() {
-    assert_linked("http://example.org/\"_(foo)",
-                  "|http://example.org/\"_(foo)|");
-    assert_linked("http://example.org/\"_(foo)\"",
-                  "|http://example.org/\"_(foo)\"|");
-    assert_linked("http://example.org/\"\"", "|http://example.org/\"\"|");
-    assert_linked("http://example.org/\"\"\"", "|http://example.org/\"\"|\"");
-    assert_linked("http://example.org/\".", "|http://example.org/|\".");
-    assert_linked("http://example.org/\"a", "|http://example.org/\"a|");
-    assert_linked("http://example.org/it's", "|http://example.org/it's|");
+fn double_quote() {
+    quote('"');
+}
+
+#[test]
+fn single_quote() {
+    quote('\'');
+}
+
+#[test]
+fn grave_quote() {
+    quote('`');
 }
 
 #[test]

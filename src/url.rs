@@ -64,6 +64,7 @@ impl UrlScanner {
         let mut curly = 0;
         let mut double_quote = false;
         let mut single_quote = false;
+        let mut grave_accent = false;
 
         let mut previous_can_be_last = true;
         let mut end = None;
@@ -139,6 +140,11 @@ impl UrlScanner {
                     single_quote = !single_quote;
                     // A single quote can only be the end of an URL if there's an even number
                     !single_quote
+                }
+                '`' => {
+                    grave_accent = !grave_accent;
+                    // A grave accent can only be the end of an URL if there's an even number
+                    !grave_accent
                 }
                 _ => true,
             };
