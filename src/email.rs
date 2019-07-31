@@ -97,7 +97,7 @@ impl EmailScanner {
     // See "Atom" in RFC 5321, "atext" in RFC 5322
     fn local_atom_allowed(c: char) -> bool {
         match c {
-            'a'...'z' | 'A'...'Z' | '0'...'9' | '!' | '#' | '$' | '%' | '&' | '\'' | '*' |
+            'a'..='z' | 'A'..='Z' | '0'..='9' | '!' | '#' | '$' | '%' | '&' | '\'' | '*' |
             '+' | '-' | '/' | '=' | '?' | '^' | '_' | '`' | '{' | '|' | '}' | '~' => true,
             _ => c >= '\u{80}',
         }
@@ -107,7 +107,7 @@ impl EmailScanner {
     // this can also match invalid domains.
     fn sub_domain_allowed(c: char) -> bool {
         match c {
-            'a'...'z' | 'A'...'Z' | '0'...'9' => true,
+            'a'..='z' | 'A'..='Z' | '0'..='9' => true,
             _ => c >= '\u{80}',
         }
     }
