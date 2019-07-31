@@ -109,7 +109,7 @@ pub struct Links<'t> {
     text: &'t str,
     rewind: usize,
 
-    trigger_finder: Box<Fn(&[u8]) -> Option<usize>>,
+    trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>>,
     email_scanner: EmailScanner,
     url_scanner: UrlScanner,
 }
@@ -184,7 +184,7 @@ impl<'t> Links<'t> {
     fn new(text: &'t str, url: bool, email: bool, email_domain_must_have_dot: bool) -> Links<'t> {
         let url_scanner = UrlScanner {};
         let email_scanner = EmailScanner { domain_must_have_dot: email_domain_must_have_dot };
-        let trigger_finder: Box<Fn(&[u8]) -> Option<usize>> = match (url, email) {
+        let trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>> = match (url, email) {
             (true, true) => Box::new(|s| memchr2(b':', b'@', s)),
             (true, false) => Box::new(|s| memchr(b':', s)),
             (false, true) => Box::new(|s| memchr(b'@', s)),
@@ -209,7 +209,7 @@ impl<'t> Iterator for Links<'t> {
         let mut find_from = 0;
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
             let trigger = slice.as_bytes()[find_from + i];
-            let (scanner, kind): (&Scanner, LinkKind) = match trigger {
+            let (scanner, kind): (&dyn Scanner, LinkKind) = match trigger {
                 b':' => (&self.url_scanner, LinkKind::Url),
                 b'@' => (&self.email_scanner, LinkKind::Email),
                 _ => unreachable!(),
