@@ -118,7 +118,7 @@ pub struct Links<'t> {
 pub struct Spans<'t> {
     text: &'t str,
     position: usize,
-    links: Peekable<Links<'t>>
+    links: Peekable<Links<'t>>,
 }
 
 impl LinkFinder {
@@ -175,7 +175,7 @@ impl LinkFinder {
         Spans {
             text,
             position: 0,
-            links: self.links(text).peekable()
+            links: self.links(text).peekable(),
         }
     }
 }
@@ -189,7 +189,9 @@ impl Default for LinkFinder {
 impl<'t> Links<'t> {
     fn new(text: &'t str, url: bool, email: bool, email_domain_must_have_dot: bool) -> Links<'t> {
         let url_scanner = UrlScanner {};
-        let email_scanner = EmailScanner { domain_must_have_dot: email_domain_must_have_dot };
+        let email_scanner = EmailScanner {
+            domain_must_have_dot: email_domain_must_have_dot,
+        };
         let trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>> = match (url, email) {
             (true, true) => Box::new(|s| memchr2(b':', b'@', s)),
             (true, false) => Box::new(|s| memchr(b':', s)),
@@ -244,9 +246,7 @@ impl<'t> Iterator for Links<'t> {
 
 impl<'t> fmt::Debug for Links<'t> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Links")
-            .field("text", &self.text)
-            .finish()
+        f.debug_struct("Links").field("text", &self.text).finish()
     }
 }
 
@@ -261,19 +261,19 @@ impl<'t> Iterator for Spans<'t> {
                         text: &self.text,
                         start: self.position,
                         end: link.start,
-                        kind: None
+                        kind: None,
                     };
                     self.position = link.start;
                     return Some(span);
                 }
-            },
+            }
             None => {
                 if self.position < self.text.len() {
                     let span = Span {
                         text: &self.text,
                         start: self.position,
                         end: self.text.len(),
-                        kind: None
+                        kind: None,
                     };
                     self.position = self.text.len();
                     return Some(span);
@@ -286,7 +286,7 @@ impl<'t> Iterator for Spans<'t> {
                 text: &self.text,
                 start: link.start,
                 end: link.end,
-                kind: Some(link.kind)
+                kind: Some(link.kind),
             }
         })
     }
@@ -294,8 +294,6 @@ impl<'t> Iterator for Spans<'t> {
 
 impl<'t> fmt::Debug for Spans<'t> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Spans")
-            .field("text", &self.text)
-            .finish()
+        f.debug_struct("Spans").field("text", &self.text).finish()
     }
 }

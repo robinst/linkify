@@ -109,8 +109,8 @@ extern crate memchr;
 
 mod email;
 mod finder;
-mod url;
 mod scanner;
+mod url;
 
 pub use finder::Link;
 pub use finder::LinkFinder;

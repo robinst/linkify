@@ -50,10 +50,14 @@ fn single_links() {
     assert_linked("ab://c", "|ab://c|");
     assert_linked("http://example.org/", "|http://example.org/|");
     assert_linked("http://example.org/123", "|http://example.org/123|");
-    assert_linked("http://example.org/?foo=test&bar=123",
-                  "|http://example.org/?foo=test&bar=123|");
-    assert_linked("http://example.org/?foo=%20",
-                  "|http://example.org/?foo=%20|");
+    assert_linked(
+        "http://example.org/?foo=test&bar=123",
+        "|http://example.org/?foo=test&bar=123|",
+    );
+    assert_linked(
+        "http://example.org/?foo=%20",
+        "|http://example.org/?foo=%20|",
+    );
     assert_linked("http://example.org/%3C", "|http://example.org/%3C|");
 }
 
@@ -63,10 +67,14 @@ fn space_characters_stop_url() {
     assert_linked("http://example.org/ bar", "|http://example.org/| bar");
     assert_linked("http://example.org/\tbar", "|http://example.org/|\tbar");
     assert_linked("http://example.org/\nbar", "|http://example.org/|\nbar");
-    assert_linked("http://example.org/\u{0B}bar",
-                  "|http://example.org/|\u{0B}bar");
-    assert_linked("http://example.org/\u{0C}bar",
-                  "|http://example.org/|\u{0C}bar");
+    assert_linked(
+        "http://example.org/\u{0B}bar",
+        "|http://example.org/|\u{0B}bar",
+    );
+    assert_linked(
+        "http://example.org/\u{0C}bar",
+        "|http://example.org/|\u{0C}bar",
+    );
     assert_linked("http://example.org/\rbar", "|http://example.org/|\rbar");
 }
 
@@ -108,8 +116,10 @@ fn matching_punctuation() {
 #[test]
 fn matching_punctuation_tricky() {
     assert_linked("((http://example.org/))", "((|http://example.org/|))");
-    assert_linked("((http://example.org/a(b)))",
-                  "((|http://example.org/a(b)|))");
+    assert_linked(
+        "((http://example.org/a(b)))",
+        "((|http://example.org/a(b)|))",
+    );
     assert_linked("[(http://example.org/)]", "[(|http://example.org/|)]");
     assert_linked("(http://example.org/).", "(|http://example.org/|).");
     assert_linked("(http://example.org/.)", "(|http://example.org/|.)");
@@ -122,10 +132,14 @@ fn matching_punctuation_tricky() {
 
 #[test]
 fn single_quote() {
-    assert_linked("http://example.org/\'_(foo)",
-                  "|http://example.org/\'_(foo)|");
-    assert_linked("http://example.org/\'_(foo)\'",
-                  "|http://example.org/\'_(foo)\'|");
+    assert_linked(
+        "http://example.org/\'_(foo)",
+        "|http://example.org/\'_(foo)|",
+    );
+    assert_linked(
+        "http://example.org/\'_(foo)\'",
+        "|http://example.org/\'_(foo)\'|",
+    );
     assert_linked("http://example.org/\'\'", "|http://example.org/\'\'|");
     assert_linked("http://example.org/\'\'\'", "|http://example.org/\'\'|\'");
     assert_linked("http://example.org/\'.", "|http://example.org/|\'.");
@@ -172,24 +186,37 @@ fn slash() {
 
 #[test]
 fn multiple() {
-    assert_linked("http://one.org/ http://two.org/",
-                  "|http://one.org/| |http://two.org/|");
-    assert_linked("http://one.org/ : http://two.org/",
-                  "|http://one.org/| : |http://two.org/|");
-    assert_linked("(http://one.org/)(http://two.org/)",
-                  "(|http://one.org/|)(|http://two.org/|)");
+    assert_linked(
+        "http://one.org/ http://two.org/",
+        "|http://one.org/| |http://two.org/|",
+    );
+    assert_linked(
+        "http://one.org/ : http://two.org/",
+        "|http://one.org/| : |http://two.org/|",
+    );
+    assert_linked(
+        "(http://one.org/)(http://two.org/)",
+        "(|http://one.org/|)(|http://two.org/|)",
+    );
 }
 
 #[test]
 fn international() {
-    assert_linked("http://üñîçøðé.com/ä",
-                  "|http://üñîçøðé.com/ä|");
+    assert_linked(
+        "http://üñîçøðé.com/ä",
+        "|http://üñîçøðé.com/ä|",
+    );
     assert_linked("http://example.org/\u{A1}", "|http://example.org/\u{A1}|");
     assert_linked("http://example.org/\u{A2}", "|http://example.org/\u{A2}|");
-    assert_linked("http://example.org/\u{1F600}",
-                  "|http://example.org/\u{1F600}|");
+    assert_linked(
+        "http://example.org/\u{1F600}",
+        "|http://example.org/\u{1F600}|",
+    );
     assert_linked("http://example.org/\u{A2}/", "|http://example.org/\u{A2}/|");
-    assert_linked("http://xn--c1h.example.com/", "|http://xn--c1h.example.com/|");
+    assert_linked(
+        "http://xn--c1h.example.com/",
+        "|http://xn--c1h.example.com/|",
+    );
 }
 
 #[test]

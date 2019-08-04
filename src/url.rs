@@ -67,13 +67,7 @@ impl UrlScanner {
 
         for (i, c) in s.char_indices() {
             let can_be_last = match c {
-                '\u{00}'..='\u{1F}' |
-                ' ' |
-                '\"' |
-                '<' |
-                '>' |
-                '`' |
-                '\u{7F}'..='\u{9F}' => {
+                '\u{00}'..='\u{1F}' | ' ' | '\"' | '<' | '>' | '`' | '\u{7F}'..='\u{9F}' => {
                     // These can never be part of an URL, so stop now. See RFC 3986 and RFC 3987.
                     // Some characters are not in the above list, even they are not in "unreserved"
                     // or "reserved":
