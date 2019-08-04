@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [0.4.0] - 2019-08-04
+### Changed
+- Stop URLs when encountering ". This is consistent with RFC 3986, and
+  it seems unlikely that a user would have an unescaped " in an URL
+  anyway, as browsers escape it when copying an URL with it.
+- Stop URLs at \` characters too, same as < and >
+
 ## [0.3.1] - 2018-02-04
 ### Changed
 - Bump memchr dependency to 2 (for wasm support)
