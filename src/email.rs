@@ -16,13 +16,13 @@ impl Scanner for EmailScanner {
             let after = at + 1;
             if let Some(end) = self.find_end(&s[after..]) {
                 let range = Range {
-                    start: start,
+                    start,
                     end: after + end,
                 };
                 return Some(range);
             }
         }
-        return None;
+        None
     }
 }
 
@@ -63,23 +63,21 @@ impl EmailScanner {
                 } else {
                     break;
                 }
-            } else {
-                if c == '.' {
-                    if !can_end_sub_domain {
-                        break;
-                    }
-                    first_in_sub_domain = true;
-                    if first_dot.is_none() {
-                        first_dot = Some(i);
-                    }
-                } else if c == '-' {
-                    can_end_sub_domain = false;
-                } else if Self::sub_domain_allowed(c) {
-                    end = Some(i + c.len_utf8());
-                    can_end_sub_domain = true;
-                } else {
+            } else if c == '.' {
+                if !can_end_sub_domain {
                     break;
                 }
+                first_in_sub_domain = true;
+                if first_dot.is_none() {
+                    first_dot = Some(i);
+                }
+            } else if c == '-' {
+                can_end_sub_domain = false;
+            } else if Self::sub_domain_allowed(c) {
+                end = Some(i + c.len_utf8());
+                can_end_sub_domain = true;
+            } else {
+                break;
             }
         }
 

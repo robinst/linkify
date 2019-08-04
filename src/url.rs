@@ -11,20 +11,18 @@ impl Scanner for UrlScanner {
     fn scan(&self, s: &str, colon: usize) -> Option<Range<usize>> {
         let after_slash_slash = colon + 3;
         // Need at least one character for scheme, and one after '//'
-        if colon > 0 && after_slash_slash < s.len() {
-            if s[colon..].starts_with("://") {
-                if let Some(start) = self.find_start(&s[0..colon]) {
-                    if let Some(end) = self.find_end(&s[after_slash_slash..]) {
-                        let range = Range {
-                            start: start,
-                            end: after_slash_slash + end,
-                        };
-                        return Some(range);
-                    }
+        if colon > 0 && after_slash_slash < s.len() && s[colon..].starts_with("://") {
+            if let Some(start) = self.find_start(&s[0..colon]) {
+                if let Some(end) = self.find_end(&s[after_slash_slash..]) {
+                    let range = Range {
+                        start,
+                        end: after_slash_slash + end,
+                    };
+                    return Some(range);
                 }
             }
         }
-        return None;
+        None
     }
 }
 
@@ -55,7 +53,7 @@ impl UrlScanner {
                 }
             }
         }
-        return first;
+        first
     }
 
     fn find_end(&self, s: &str) -> Option<usize> {

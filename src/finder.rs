@@ -173,10 +173,16 @@ impl LinkFinder {
     /// and when combined represent the input text in its entirety.
     pub fn spans<'t>(&self, text: &'t str) -> Spans<'t> {
         Spans {
-            text: text,
+            text,
             position: 0,
             links: self.links(text).peekable()
         }
+    }
+}
+
+impl Default for LinkFinder {
+    fn default() -> Self {
+        LinkFinder::new()
     }
 }
 
@@ -191,11 +197,11 @@ impl<'t> Links<'t> {
             (false, false) => Box::new(|_| None),
         };
         Links {
-            text: text,
+            text,
             rewind: 0,
-            trigger_finder: trigger_finder,
-            email_scanner: email_scanner,
-            url_scanner: url_scanner,
+            trigger_finder,
+            email_scanner,
+            url_scanner,
         }
     }
 }
@@ -220,9 +226,9 @@ impl<'t> Iterator for Links<'t> {
                 self.rewind = end;
                 let link = Link {
                     text: &self.text,
-                    start: start,
-                    end: end,
-                    kind: kind,
+                    start,
+                    end,
+                    kind,
                 };
                 return Some(link);
             } else {
@@ -232,7 +238,7 @@ impl<'t> Iterator for Links<'t> {
             }
         }
 
-        return None;
+        None
     }
 }
 
