@@ -2,7 +2,7 @@ extern crate linkify;
 
 mod common;
 
-use common::assert_linked_with;
+use crate::common::assert_linked_with;
 use linkify::LinkFinder;
 
 #[test]

@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use scanner::Scanner;
+use crate::scanner::Scanner;
 
 /// Scan for email address starting from the trigger character "@".
 ///

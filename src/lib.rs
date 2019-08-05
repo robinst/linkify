@@ -112,8 +112,8 @@ mod finder;
 mod scanner;
 mod url;
 
-pub use finder::Link;
-pub use finder::LinkFinder;
-pub use finder::LinkKind;
-pub use finder::Links;
-pub use finder::{Span, Spans};
+pub use crate::finder::Link;
+pub use crate::finder::LinkFinder;
+pub use crate::finder::LinkKind;
+pub use crate::finder::Links;
+pub use crate::finder::{Span, Spans};

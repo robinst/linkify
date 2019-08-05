@@ -4,9 +4,9 @@ use std::iter::Peekable;
 use memchr::memchr;
 use memchr::memchr2;
 
-use email::EmailScanner;
-use scanner::Scanner;
-use url::UrlScanner;
+use crate::email::EmailScanner;
+use crate::scanner::Scanner;
+use crate::url::UrlScanner;
 
 /// A link found in the input text.
 #[derive(Debug)]
