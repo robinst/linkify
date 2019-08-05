@@ -43,6 +43,8 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[0.4.0]: https://github.com/robinst/linkify/compare/0.3.1...0.4.0
+[0.3.1]: https://github.com/robinst/linkify/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/robinst/linkify/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/robinst/linkify/compare/0.1.2...0.2.0
 [0.1.2]: https://github.com/robinst/linkify/compare/0.1.1...0.1.2
