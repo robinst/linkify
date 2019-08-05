@@ -1,6 +1,6 @@
 [package]
 name = "linkify"
-version = "0.3.1" # remember to update html_root_url
+version = "0.4.0" # remember to update html_root_url
 authors = ["Robin Stocker <robin@nibor.org>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -11,6 +11,7 @@ documentation = "https://docs.rs/linkify"
 description = "Finds URLs and email addresses in plain text. Takes care to get the boundaries right with surrounding punctuation like parentheses."
 categories = ["text-processing"]
 keywords = ["web", "text", "url", "links"]
+exclude = ["/.travis.yml"]
 
 [dependencies]
 memchr = "2.0.1"
