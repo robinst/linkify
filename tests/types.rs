@@ -1,5 +1,3 @@
-
-
 use linkify::Link;
 use linkify::LinkFinder;
 use linkify::LinkKind;

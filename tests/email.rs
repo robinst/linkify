@@ -1,5 +1,3 @@
-
-
 mod common;
 
 use crate::common::assert_linked_with;

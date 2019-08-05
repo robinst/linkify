@@ -105,8 +105,6 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 
-
-
 mod email;
 mod finder;
 mod scanner;
