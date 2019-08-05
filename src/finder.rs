@@ -245,7 +245,7 @@ impl<'t> Iterator for Links<'t> {
 }
 
 impl<'t> fmt::Debug for Links<'t> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Links").field("text", &self.text).finish()
     }
 }
@@ -293,7 +293,7 @@ impl<'t> Iterator for Spans<'t> {
 }
 
 impl<'t> fmt::Debug for Spans<'t> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Spans").field("text", &self.text).finish()
     }
 }

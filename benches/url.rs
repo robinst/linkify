@@ -1,5 +1,5 @@
 #![feature(test)]
-extern crate linkify;
+
 
 extern crate test;
 

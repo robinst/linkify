@@ -105,7 +105,7 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 
-extern crate memchr;
+
 
 mod email;
 mod finder;

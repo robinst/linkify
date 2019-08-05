@@ -1,4 +1,4 @@
-extern crate linkify;
+
 
 use linkify::Link;
 use linkify::LinkFinder;
@@ -9,8 +9,8 @@ fn send_and_sync() {
     check_send::<LinkFinder>();
     check_sync::<LinkFinder>();
 
-    check_send::<Link>();
-    check_sync::<Link>();
+    check_send::<Link<'_>>();
+    check_sync::<Link<'_>>();
 }
 
 #[test]
