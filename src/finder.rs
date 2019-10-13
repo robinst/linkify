@@ -101,7 +101,7 @@ pub struct LinkFinder {
     email: bool,
     email_domain_must_have_dot: bool,
     url: bool,
-    url_no_proto: bool,
+    url_optional_scheme: bool,
 }
 
 /// Iterator for finding links.
@@ -131,8 +131,7 @@ impl LinkFinder {
             email: true,
             email_domain_must_have_dot: true,
             url: true,
-            // TODO(timvisee): default this to false
-            url_no_proto: false,
+            url_optional_scheme: false,
         }
     }
 
@@ -143,13 +142,14 @@ impl LinkFinder {
         self
     }
 
-    /// Define whether URLs require a protocol definition.
+    /// Define whether URL schemes such as `https` are optional.
     ///
-    /// By default only URLs having an `https://` protocol definition are found.
-    /// You may disable this to also find `example.org`. The protocol definition may be important
-    /// though, and disabling this may lead to finding a lot of false positive links.
-    pub fn url_no_protocol(&mut self, url_no_proto: bool) -> &mut LinkFinder {
-        self.url_no_proto = url_no_proto;
+    /// By default only URLs having a scheme defined are found.
+    /// By setting this to `true` you make the scheme of URLs optional, to also find URLs like
+    /// `example.org`. For some URLs the used scheme is important, and making the scheme optional
+    /// may lead to finding a lot of false positive URLs.
+    pub fn url_optional_scheme(&mut self, url_optional_scheme: bool) -> &mut LinkFinder {
+        self.url_optional_scheme = url_optional_scheme;
         self
     }
 
@@ -174,7 +174,7 @@ impl LinkFinder {
         Links::new(
             text,
             self.url,
-            self.url_no_proto,
+            self.url_optional_scheme,
             self.email,
             self.email_domain_must_have_dot,
         )
@@ -208,24 +208,23 @@ impl<'t> Links<'t> {
     fn new(
         text: &'t str,
         url: bool,
-        url_no_proto: bool,
+        url_optional_scheme: bool,
         email: bool,
         email_domain_must_have_dot: bool,
     ) -> Links<'t> {
         let url_scanner = UrlScanner {
-            no_proto: url_no_proto,
+            optional_scheme: url_optional_scheme,
         };
         let email_scanner = EmailScanner {
             domain_must_have_dot: email_domain_must_have_dot,
         };
-        // TODO(timvisee): do we need to update this for `no_proto`?
+
+        // With optional schemes URLs don't have unique `:`, then search for `.` as well
         let trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>> = match (url, email) {
-            (true, true) if url_no_proto => Box::new(|s| memchr3(b':', b'@', b'.', s)),
+            (true, true) if url_optional_scheme => Box::new(|s| memchr3(b':', b'@', b'.', s)),
             (true, true) => Box::new(|s| memchr2(b':', b'@', s)),
-            (true, false) if url_no_proto => Box::new(|s| memchr2(b':', b'.', s)),
+            (true, false) if url_optional_scheme => Box::new(|s| memchr2(b':', b'.', s)),
             (true, false) => Box::new(|s| memchr(b':', s)),
-            // (true, true) => Box::new(|s| memchr2(b':', b'@', s)),
-            // (true, false) => Box::new(|s| memchr(b':', s)),
             (false, true) => Box::new(|s| memchr(b'@', s)),
             (false, false) => Box::new(|_| None),
         };
@@ -248,10 +247,8 @@ impl<'t> Iterator for Links<'t> {
         let mut find_from = 0;
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
             let trigger = slice.as_bytes()[find_from + i];
-            // TODO(timvisee): do we need to update this for `no_proto`?
             let (scanner, kind): (&dyn Scanner, LinkKind) = match trigger {
                 b':' | b'.' => (&self.url_scanner, LinkKind::Url),
-                // b':' => (&self.url_scanner, LinkKind::Url),
                 b'@' => (&self.email_scanner, LinkKind::Email),
                 _ => unreachable!(),
             };

@@ -8,54 +8,36 @@ const QUOTES: &[char] = &['\'', '\"'];
 ///
 /// Based on RFC 3986.
 pub struct UrlScanner {
-    /// Whether to find URLs with no protocol definition.
+    /// Whether URL schemes such as `https` are optional.
     ///
-    /// Setting this to `true` allows to find URLs without a protocol definition such as
-    /// `https://`, to make links like `example.org` findable. For some URLs the specific protocl
+    /// Setting this to `true` allows to find URLs without a scheme such as `https` as well,
+    /// to make links like `example.org` findable. For some URLs the specific scheme
     /// that is used is important, and disabling this need may lead to a lot of false positive
     /// links which should be filtered by the end user.
     /// Please note that this finds URLs not specified in the RFC.
-    pub no_proto: bool,
+    pub optional_scheme: bool,
 }
 
 impl Scanner for UrlScanner {
     fn scan(&self, s: &str, separator: usize) -> Option<Range<usize>> {
-        // let after_slash_slash = colon + 3;
-        // // Need at least one character for scheme, and one after '//'
-        // // TODO(timvisee): this requires changes?
-        // if colon > 0 && after_slash_slash < s.len() && s[colon..].starts_with("://") {
-        //     if let Some(start) = self.find_start(&s[0..colon]) {
-        //         if let Some(end) = self.find_end(&s[after_slash_slash..]) {
-        //             let range = Range {
-        //                 start,
-        //                 end: after_slash_slash + end,
-        //             };
-        //             return Some(range);
-        //         }
-        //     }
-        // }
-        // None
-
-        // TODO(timvisee): use different terms: colon>separator, and such
-
+        // There must be something before separator for scheme or host
         if separator == 0 {
             return None;
         }
 
         // Detect used separator, being `://` or `.`
-        let separator_str = if s[separator..].starts_with("://") {
-            "://"
+        let (is_slash_slash, separator_len) = if s[separator..].starts_with("://") {
+            (true, "://".len())
         } else if s[separator..].starts_with('.') {
-            "."
+            (false, ".".len())
         } else {
             return None;
         };
-
-        let after_separator = separator + separator_str.len();
+        let after_separator = separator + separator_len;
 
         // Need at least one character for scheme, and one after '//'
         if after_separator < s.len() {
-            if let (Some(start), quote) = self.find_start(&s[0..separator]) {
+            if let (Some(start), quote) = self.find_start(&s[0..separator], is_slash_slash) {
                 if let Some(end) = self.find_end(&s[after_separator..], quote) {
                     let range = Range {
                         start,
@@ -70,18 +52,23 @@ impl Scanner for UrlScanner {
 }
 
 impl UrlScanner {
+    // For URL searching starting before the `://` separator, the `has_scheme` parameter should be
+    // true because the URL will have a scheme for sure. If searching before the `.` separator, it
+    // should be `false` as we might search over the scheme definition for the scheme being optional.
     // See "scheme" in RFC 3986
-    fn find_start(&self, s: &str) -> (Option<usize>, Option<char>) {
+    fn find_start(&self, s: &str, mut has_scheme: bool) -> (Option<usize>, Option<char>) {
         let mut first = None;
-        let mut digit = None;
+        let mut special = None;
         let mut quote = None;
         for (i, c) in s.char_indices().rev() {
             match c {
                 'a'..='z' | 'A'..='Z' => first = Some(i),
-                '0'..='9' => digit = Some(i),
-                // scheme special
-                // TODO(timvisee): add `:` here if `no_proto` is true?
-                ':' | '/' if self.no_proto => digit = Some(i),
+                '0'..='9' => special = Some(i),
+                '/' if !has_scheme => special = Some(i),
+                ':' if !has_scheme => {
+                    has_scheme = true;
+                    special = Some(i)
+                }
                 '+' | '-' | '.' => {}
                 _ => {
                     // Check if there's a quote before the scheme,
@@ -95,14 +82,12 @@ impl UrlScanner {
             }
         }
 
-        // TODO(timvisee): start cannot have partial protocol with `no_proto` (such as `://`, `//` or `/`)
-
         // We don't want to extract "abc://foo" out of "1abc://foo".
         // ".abc://foo" and others are ok though, as they feel more like separators.
         if let Some(first) = first {
-            if let Some(digit) = digit {
+            if let Some(special) = special {
                 // Comparing the byte indices with `- 1` is ok as scheme must be ASCII
-                if first > 0 && first - 1 == digit {
+                if first > 0 && first - 1 == special {
                     return (None, quote);
                 }
             }
@@ -116,7 +101,6 @@ impl UrlScanner {
         let mut curly = 0;
         let mut single_quote = false;
 
-        // TODO(timvisee): should this be false if searching from `.`?
         let mut previous_can_be_last = true;
         let mut end = None;
 
