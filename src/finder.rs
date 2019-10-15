@@ -101,7 +101,7 @@ pub struct LinkFinder {
     email: bool,
     email_domain_must_have_dot: bool,
     url: bool,
-    url_optional_scheme: bool,
+    url_must_have_scheme: bool,
 }
 
 /// Iterator for finding links.
@@ -131,7 +131,7 @@ impl LinkFinder {
             email: true,
             email_domain_must_have_dot: true,
             url: true,
-            url_optional_scheme: false,
+            url_must_have_scheme: true,
         }
     }
 
@@ -142,14 +142,14 @@ impl LinkFinder {
         self
     }
 
-    /// Define whether URL schemes such as `https` are optional.
+    /// Set whether URLs must have a scheme, defaults to `true`.
     ///
     /// By default only URLs having a scheme defined are found.
-    /// By setting this to `true` you make the scheme of URLs optional, to also find URLs like
+    /// By setting this to `false` you make the scheme of URLs optional, to also find URLs like
     /// `example.org`. For some URLs the used scheme is important, and making the scheme optional
     /// may lead to finding a lot of false positive URLs.
-    pub fn url_optional_scheme(&mut self, url_optional_scheme: bool) -> &mut LinkFinder {
-        self.url_optional_scheme = url_optional_scheme;
+    pub fn url_must_have_scheme(&mut self, url_must_have_scheme: bool) -> &mut LinkFinder {
+        self.url_must_have_scheme = url_must_have_scheme;
         self
     }
 
@@ -174,7 +174,7 @@ impl LinkFinder {
         Links::new(
             text,
             self.url,
-            self.url_optional_scheme,
+            self.url_must_have_scheme,
             self.email,
             self.email_domain_must_have_dot,
         )
@@ -208,12 +208,12 @@ impl<'t> Links<'t> {
     fn new(
         text: &'t str,
         url: bool,
-        url_optional_scheme: bool,
+        url_must_have_scheme: bool,
         email: bool,
         email_domain_must_have_dot: bool,
     ) -> Links<'t> {
         let url_scanner = UrlScanner {
-            optional_scheme: url_optional_scheme,
+            must_have_scheme: url_must_have_scheme,
         };
         let email_scanner = EmailScanner {
             domain_must_have_dot: email_domain_must_have_dot,
@@ -221,10 +221,10 @@ impl<'t> Links<'t> {
 
         // With optional schemes URLs don't have unique `:`, then search for `.` as well
         let trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>> = match (url, email) {
-            (true, true) if url_optional_scheme => Box::new(|s| memchr3(b':', b'@', b'.', s)),
-            (true, true) => Box::new(|s| memchr2(b':', b'@', s)),
-            (true, false) if url_optional_scheme => Box::new(|s| memchr2(b':', b'.', s)),
-            (true, false) => Box::new(|s| memchr(b':', s)),
+            (true, true) if url_must_have_scheme => Box::new(|s| memchr2(b':', b'@', s)),
+            (true, true) => Box::new(|s| memchr3(b':', b'@', b'.', s)),
+            (true, false) if url_must_have_scheme => Box::new(|s| memchr(b':', s)),
+            (true, false) => Box::new(|s| memchr2(b':', b'.', s)),
             (false, true) => Box::new(|s| memchr(b'@', s)),
             (false, false) => Box::new(|_| None),
         };

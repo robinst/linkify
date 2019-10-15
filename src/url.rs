@@ -8,14 +8,14 @@ const QUOTES: &[char] = &['\'', '\"'];
 ///
 /// Based on RFC 3986.
 pub struct UrlScanner {
-    /// Whether URL schemes such as `https` are optional.
+    /// Whether URLs must have a scheme.
     ///
-    /// Setting this to `true` allows to find URLs without a scheme such as `https` as well,
+    /// Setting this to `false` allows to find URLs without a scheme such as `https` as well,
     /// to make links like `example.org` findable. For some URLs the specific scheme
-    /// that is used is important, and disabling this need may lead to a lot of false positive
-    /// links which should be filtered by the end user.
+    /// that is used is important, and disabling this need may lead to false positives and must be
+    /// filtered by the end user.
     /// Please note that this finds URLs not specified in the RFC.
-    pub optional_scheme: bool,
+    pub must_have_scheme: bool,
 }
 
 impl Scanner for UrlScanner {
