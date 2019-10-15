@@ -7,18 +7,15 @@ const QUOTES: &[char] = &['\'', '\"'];
 /// Scan for URLs starting from the trigger character ":", requires "://".
 ///
 /// Based on RFC 3986.
-pub struct UrlScanner {
-    /// Whether URLs must have a scheme.
-    ///
-    /// Setting this to `false` allows to find URLs without a scheme such as `https` as well,
-    /// to make links like `example.org` findable. For some URLs the specific scheme
-    /// that is used is important, and disabling this need may lead to false positives and must be
-    /// filtered by the end user.
-    /// Please note that this finds URLs not specified in the RFC.
-    pub must_have_scheme: bool,
-}
+pub struct UrlScanner;
 
 impl Scanner for UrlScanner {
+    /// Scan for an URL at the given separator index in the string.
+    ///
+    /// The kind of separator that was used (`://` vs `.`) has effect on whether URLs with no
+    /// schemes are found.
+    ///
+    /// Returns `None` if none was found, or if an invalid separator index was given.
     fn scan(&self, s: &str, separator: usize) -> Option<Range<usize>> {
         // There must be something before separator for scheme or host
         if separator == 0 {

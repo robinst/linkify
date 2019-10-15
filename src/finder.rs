@@ -212,9 +212,7 @@ impl<'t> Links<'t> {
         email: bool,
         email_domain_must_have_dot: bool,
     ) -> Links<'t> {
-        let url_scanner = UrlScanner {
-            must_have_scheme: url_must_have_scheme,
-        };
+        let url_scanner = UrlScanner;
         let email_scanner = EmailScanner {
             domain_must_have_dot: email_domain_must_have_dot,
         };
