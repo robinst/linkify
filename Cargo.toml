@@ -15,6 +15,3 @@ exclude = ["/.github"]
 
 [dependencies]
 memchr = "2.0.1"
-
-[dev-dependencies]
-version-sync = "0.8"
