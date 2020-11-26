@@ -200,10 +200,7 @@ fn multiple() {
 
 #[test]
 fn international() {
-    assert_linked(
-        "http://üñîçøðé.com/ä",
-        "|http://üñîçøðé.com/ä|",
-    );
+    assert_linked("http://üñîçøðé.com/ä", "|http://üñîçøðé.com/ä|");
     assert_linked("http://example.org/\u{A1}", "|http://example.org/\u{A1}|");
     assert_linked("http://example.org/\u{A2}", "|http://example.org/\u{A2}|");
     assert_linked(
