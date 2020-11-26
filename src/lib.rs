@@ -115,3 +115,6 @@ pub use crate::finder::LinkFinder;
 pub use crate::finder::LinkKind;
 pub use crate::finder::Links;
 pub use crate::finder::{Span, Spans};
+
+#[cfg(doctest)]
+doc_comment::doctest!("../README.md");
