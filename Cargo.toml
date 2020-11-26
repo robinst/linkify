@@ -11,7 +11,7 @@ documentation = "https://docs.rs/linkify"
 description = "Finds URLs and email addresses in plain text. Takes care to get the boundaries right with surrounding punctuation like parentheses."
 categories = ["text-processing"]
 keywords = ["web", "text", "url", "links"]
-exclude = ["/.travis.yml"]
+exclude = ["/.github"]
 
 [dependencies]
 memchr = "2.0.1"
