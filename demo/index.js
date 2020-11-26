@@ -1,13 +1,13 @@
-const rust = import("./pkg");
+const pkg = import("./pkg");
 
-let module = undefined;
+let rust = undefined;
 
-rust
-  .then((m) => (module = m))
+pkg
+  .then((m) => (rust = m))
   .catch((e) => console.error("Failed to load WebAssembly module", e));
 
 export function linkifyText(input) {
-  return module !== undefined ? module.linkify_text(input) : undefined;
+  return rust !== undefined ? rust.linkify_text(input) : undefined;
 }
 
 function handleInput(e) {
