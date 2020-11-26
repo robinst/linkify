@@ -99,10 +99,7 @@ fn multiple() {
 #[test]
 fn international() {
     assert_linked("üñîçøðé@example.com", "|üñîçøðé@example.com|");
-    assert_linked(
-        "üñîçøðé@üñîçøðé.com",
-        "|üñîçøðé@üñîçøðé.com|",
-    );
+    assert_linked("üñîçøðé@üñîçøðé.com", "|üñîçøðé@üñîçøðé.com|");
 }
 
 #[test]
