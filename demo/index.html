@@ -1,11 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>linkify demo in WebAssembly</title>
-</head>
-<body>
-<label>Input: <textarea id="input"></textarea></label>
-<div id="output"></div>
-</body>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+          Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+        line-height: 1.5;
+        color: #2d3748;
+        margin: 0.5em;
+      }
+
+      .content-wrapper {
+        display: flex;
+      }
+
+      .content {
+        max-width: 600px;
+        margin: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .label {
+        margin-top: 1.5em;
+        color: #526252;
+      }
+
+      #input {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+          Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+        color: #2d3748;
+        resize: none;
+        transition: 100ms box-shadow ease-in-out;
+      }
+
+      #input:focus {
+        border-color: #0a75f6;
+        box-shadow: 0 0 4px #0a75f6;
+        outline: 3px solid transparent;
+      }
+
+      #input,
+      #output {
+        flex-basis: 8em;
+        box-sizing: border-box;
+        margin-top: 1em;
+        margin-left: 1em;
+        margin-right: 1em;
+        padding: 0.25em 0.5em;
+        border: 1px solid #cac8c8;
+        box-shadow: 0 0 2px #d4d6d6;
+        border-radius: 5px;
+      }
+
+      #output {
+        white-space: pre-wrap;
+        overflow: scroll;
+      }
+
+      #timing {
+        margin-left: 1em;
+        margin-top: 0.5em;
+        font-size: 0.9em;
+        font-weight: lighter;
+        padding: 0.5em;
+        color: #2d9b4e;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="label"><label for="input">Input:</label></div>
+        <textarea id="input"></textarea>
+        <div class="label"><label for="output">Linkified:</label></div>
+        <div id="output"></div>
+        <div id="timing"></div>
+      </div>
+    </div>
+  </body>
 </html>
