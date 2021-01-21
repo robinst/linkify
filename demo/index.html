@@ -6,28 +6,69 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <style>
       body {
+        margin: 0;
+        line-height: 1.5;
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
           Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
-        line-height: 1.5;
-        color: #2d3748;
-        margin: 0.5em;
+        color: rgb(104, 106, 108);
+        background-color: rgb(255, 255, 253);
       }
 
-      .content-wrapper {
+      h1 {
+        font-size: 1.5em;
+        color: rgb(56, 68, 81);
+      }
+
+      p {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        color: rgb(104, 106, 108);
+      }
+
+      .main-wrapper {
         display: flex;
+        flex-direction: column;
       }
 
       .content {
         max-width: 600px;
         margin: auto;
+        padding: 1em;
         flex: 1;
         display: flex;
         flex-direction: column;
       }
 
+      .header {
+        display: flex;
+        align-items: baseline;
+        border-bottom: 1px solid rgb(224, 232, 250);
+        padding-top: 1em;
+        padding-bottom: 1em;
+        margin-bottom: 1em;
+      }
+
+      .header h1 {
+        margin: 0;
+        display: flex;
+        flex: 1;
+      }
+
+      .repo {
+        display: flex;
+        line-height: 1;
+      }
+
+      .repo a {
+        color: rgb(104, 106, 108);
+      }
+
+      .repo a:hover {
+        color: rgb(66, 80, 95);
+      }
+
       .label {
         margin-top: 1.5em;
-        color: #526252;
       }
 
       #input {
@@ -35,13 +76,21 @@
           Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
         color: #2d3748;
         resize: none;
-        transition: 100ms box-shadow ease-in-out;
+        transition: box-shadow 0.1s ease-in-out,
+          background-color 0.2s ease-in-out 0s, border-color 0.2s ease-in-out 0s;
       }
 
       #input:focus {
-        border-color: #0a75f6;
-        box-shadow: 0 0 4px #0a75f6;
+        border-color: rgb(73, 147, 243);
         outline: 3px solid transparent;
+      }
+
+      #input:hover {
+        border-color: rgb(161, 178, 200);
+      }
+
+      #input:hover:focus {
+        border-color: rgb(73, 147, 243);
       }
 
       #input,
@@ -51,10 +100,10 @@
         margin-top: 1em;
         margin-left: 1em;
         margin-right: 1em;
-        padding: 0.25em 0.5em;
-        border: 1px solid #cac8c8;
-        box-shadow: 0 0 2px #d4d6d6;
-        border-radius: 5px;
+        padding: 0.5em 0.5em;
+        border: 2px solid rgb(206, 208, 210);
+        border-radius: 3px;
+        background-color: rgb(250, 251, 252);
       }
 
       #output {
@@ -62,24 +111,70 @@
         overflow: scroll;
       }
 
+      #output a {
+        color: rgb(73, 147, 243);
+      }
+
       #timing {
         margin-left: 1em;
         margin-top: 0.5em;
-        font-size: 0.9em;
-        font-weight: lighter;
+        font-size: 0.8em;
         padding: 0.5em;
-        color: #2d9b4e;
+        color: rgb(18, 123, 39);
       }
     </style>
   </head>
   <body>
-    <div class="content-wrapper">
+    <div class="main-wrapper">
       <div class="content">
-        <div class="label"><label for="input">Input:</label></div>
-        <textarea id="input"></textarea>
+        <div class="header">
+          <h1>linkify demo</h1>
+          <div class="repo" title="GitHub repository">
+            <a href="https://github.com/robinst/linkify">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-github"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <p>
+          <img
+            src="wasm-ferris.png"
+            alt="Ferris the crab wearing a hat that says WA (WebAssembly)"
+            title="Ferris with a WebAssembly hat :)"
+            style="height: 2em; margin-left: 0.5em; float: right"
+          />This is an interactive demo of
+          <a href="https://crates.io/crates/linkify">linkify</a>, a Rust crate
+          to find links such as URLs and email addresses in plain text.
+        </p>
+        <p>
+          Because the crate is written in Rust, it can be compiled to
+          <a href="https://developer.mozilla.org/en-US/docs/WebAssembly"
+            >WebAssembly</a
+          >
+          and used in JavaScript as you can see below!
+        </p>
+        <p>
+          Try some examples (<a href="#" id="short">short</a>,
+          <a href="#" id="long">long</a>,
+          <a href="#" id="very-long">very long</a>) or type/paste some other
+          text with links:
+        </p>
+        <textarea id="input" placeholder="Type text with links here"></textarea>
         <div class="label"><label for="output">Linkified:</label></div>
         <div id="output"></div>
         <div id="timing"></div>
+        <div>TODO: examples, link to repo</div>
       </div>
     </div>
   </body>

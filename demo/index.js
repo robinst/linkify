@@ -21,7 +21,7 @@ function handleInput(text) {
   if (text.length === 0) {
     timing.innerHTML = "";
   } else {
-    const links = document.getElementsByTagName("a").length;
+    const links = output.getElementsByTagName("a").length;
     timing.innerHTML =
       "✓ <strong>" +
       millis +
