@@ -25,6 +25,25 @@
         color: rgb(104, 106, 108);
       }
 
+      button {
+        margin: 0;
+        padding: 0.05em 0.3em 0.1em;
+        cursor: pointer;
+        border: 2px solid rgb(206, 208, 210);
+        border-radius: 5px;
+        color: rgb(104, 106, 108);
+        background-color: rgb(250, 251, 252);
+        font-size: 1em;
+      }
+
+      button:hover {
+        border-color: rgb(161, 178, 200);
+      }
+
+      button:active {
+        border-color: rgb(73, 147, 243);
+      }
+
       .main-wrapper {
         display: flex;
         flex-direction: column;
@@ -74,6 +93,7 @@
       #input {
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
           Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+        font-size: 1em;
         color: #2d3748;
         resize: none;
         transition: box-shadow 0.1s ease-in-out,
@@ -95,7 +115,8 @@
 
       #input,
       #output {
-        flex-basis: 8em;
+        flex-basis: 10em;
+        line-height: 1.5em;
         box-sizing: border-box;
         margin-top: 1em;
         margin-left: 1em;
@@ -133,8 +154,8 @@
             <a href="https://github.com/robinst/linkify">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
+                width="20"
+                height="20"
                 fill="currentColor"
                 class="bi bi-github"
                 viewBox="0 0 16 16"
@@ -149,7 +170,7 @@
 
         <p>
           <img
-            src="wasm-ferris.png"
+            src="./wasm-ferris.png"
             alt="Ferris the crab wearing a hat that says WA (WebAssembly)"
             title="Ferris with a WebAssembly hat :)"
             style="height: 2em; margin-left: 0.5em; float: right"
@@ -165,16 +186,16 @@
           and used in JavaScript as you can see below!
         </p>
         <p>
-          Try some examples (<a href="#" id="short">short</a>,
-          <a href="#" id="long">long</a>,
-          <a href="#" id="very-long">very long</a>) or type/paste some other
-          text with links:
+          Try some examples: <button id="example-urls">urls</button>,
+          <button id="example-emails">emails</button>
+          <button id="example-long">long</button>,
+          <button id="example-very-long">very long</button>, or type/paste some
+          other text with links:
         </p>
         <textarea id="input" placeholder="Type text with links here"></textarea>
         <div class="label"><label for="output">Linkified:</label></div>
         <div id="output"></div>
         <div id="timing"></div>
-        <div>TODO: examples, link to repo</div>
       </div>
     </div>
   </body>
