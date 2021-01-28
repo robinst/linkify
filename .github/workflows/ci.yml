@@ -95,8 +95,11 @@ jobs:
           fail_ci_if_error: true
 
   demo:
-    name: build demo
+    name: wasm demo
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demo
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
