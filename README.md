@@ -30,6 +30,11 @@ It uses a simple scan with linear runtime.
 
 In addition to URLs, it can also find email addresses.
 
+## 🧪 Demo
+
+Try it out on the demo playground (Rust compiled to WebAssembly):
+https://robinst.github.io/linkify/
+
 ## Usage
 
 Basic usage:
