@@ -1,4 +1,4 @@
-const pkg = import("./pkg");
+const pkg = import("../pkg");
 
 let rustModule = undefined;
 

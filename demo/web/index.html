@@ -10,19 +10,24 @@
         line-height: 1.5;
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
           Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
-        color: rgb(104, 106, 108);
+        color: rgb(50, 52, 54);
         background-color: rgb(255, 255, 253);
       }
 
       h1 {
         font-size: 1.5em;
-        color: rgb(56, 68, 81);
+        font-family: Menlo, ui-monospace, SFMono-Regular, Monaco, Consolas,
+          Liberation Mono, Courier New, monospace;
+        color: rgb(50, 110, 188);
+      }
+
+      a {
+        color: rgb(50, 110, 188);
       }
 
       p {
         margin-top: 0.5em;
         margin-bottom: 0.5em;
-        color: rgb(104, 106, 108);
       }
 
       button {
@@ -31,7 +36,7 @@
         cursor: pointer;
         border: 2px solid rgb(206, 208, 210);
         border-radius: 5px;
-        color: rgb(104, 106, 108);
+        color: rgb(50, 52, 54);
         background-color: rgb(250, 251, 252);
         font-size: 1em;
       }
@@ -132,10 +137,6 @@
         overflow: scroll;
       }
 
-      #output a {
-        color: rgb(73, 147, 243);
-      }
-
       #timing {
         margin-left: 1em;
         margin-top: 0.5em;
@@ -170,16 +171,16 @@
 
         <p>
           <img
-            src="./wasm-ferris.png"
-            alt="Ferris the crab wearing a hat that says WA (WebAssembly)"
+            src="img/wasm-ferris.png"
+            alt=""
             title="Ferris with a WebAssembly hat :)"
             style="height: 2em; margin-left: 0.5em; float: right"
           />This is an interactive demo of
-          <a href="https://crates.io/crates/linkify">linkify</a>, a Rust crate
+          <a href="https://crates.io/crates/linkify">linkify</a>, a Rust library
           to find links such as URLs and email addresses in plain text.
         </p>
         <p>
-          Because the crate is written in Rust, it can be compiled to
+          Because it's written in Rust, it can be compiled to
           <a href="https://developer.mozilla.org/en-US/docs/WebAssembly"
             >WebAssembly</a
           >
