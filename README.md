@@ -8,7 +8,7 @@ punctuation.
 [![Documentation](https://docs.rs/linkify/badge.svg)](https://docs.rs/linkify)
 [![Crate](https://img.shields.io/crates/v/linkify.svg)](https://crates.io/crates/linkify)
 [![ci](https://github.com/robinst/linkify/workflows/ci/badge.svg)](https://github.com/robinst/linkify/actions?query=workflow%3Aci)
-[![codecov](https://codecov.io/gh/robinst/linkify/branch/master/graph/badge.svg)](https://codecov.io/gh/robinst/linkify)
+[![codecov](https://codecov.io/gh/robinst/linkify/branch/main/graph/badge.svg)](https://codecov.io/gh/robinst/linkify)
 
 ## Introduction
 
