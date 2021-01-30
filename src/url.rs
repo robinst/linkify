@@ -5,18 +5,37 @@ use crate::scanner::Scanner;
 /// Scan for URLs starting from the trigger character ":", requires "://".
 ///
 /// Based on RFC 3986.
-pub struct UrlScanner {}
+pub struct UrlScanner;
 
 impl Scanner for UrlScanner {
-    fn scan(&self, s: &str, colon: usize) -> Option<Range<usize>> {
-        let after_slash_slash = colon + 3;
-        // Need at least one character for scheme, and one after '//'
-        if colon > 0 && after_slash_slash < s.len() && s[colon..].starts_with("://") {
-            if let Some(start) = self.find_start(&s[0..colon]) {
-                if let Some(end) = self.find_end(&s[after_slash_slash..]) {
+    /// Scan for an URL at the given separator index in the string.
+    ///
+    /// The kind of separator that was used (`://` vs `.`) has effect on whether URLs with no
+    /// schemes are found.
+    ///
+    /// Returns `None` if none was found, or if an invalid separator index was given.
+    fn scan(&self, s: &str, separator: usize) -> Option<Range<usize>> {
+        // There must be something before separator for scheme or host
+        if separator == 0 {
+            return None;
+        }
+
+        // Detect used separator, being `://` or `.`
+        let (is_slash_slash, separator_len) = if s[separator..].starts_with("://") {
+            (true, "://".len())
+        } else if s[separator..].starts_with('.') {
+            (false, ".".len())
+        } else {
+            return None;
+        };
+        let after_separator = separator + separator_len;
+
+        if after_separator < s.len() {
+            if let Some(start) = self.find_start(&s[0..separator], is_slash_slash) {
+                if let Some(end) = self.find_end(&s[after_separator..]) {
                     let range = Range {
                         start,
-                        end: after_slash_slash + end,
+                        end: after_separator + end,
                     };
                     return Some(range);
                 }
@@ -27,15 +46,22 @@ impl Scanner for UrlScanner {
 }
 
 impl UrlScanner {
+    // For URL searching starting before the `://` separator, the `has_scheme` parameter should be
+    // true because the URL will have a scheme for sure. If seraching before the `.` separator, it
+    // should be `false` as we might search over the scheme definition for the scheme being optional.
     // See "scheme" in RFC 3986
-    fn find_start(&self, s: &str) -> Option<usize> {
+    fn find_start(&self, s: &str, mut has_scheme: bool) -> Option<usize> {
         let mut first = None;
-        let mut digit = None;
+        let mut special = None;
         for (i, c) in s.char_indices().rev() {
             match c {
                 'a'..='z' | 'A'..='Z' => first = Some(i),
-                '0'..='9' => digit = Some(i),
-                // scheme special
+                '0'..='9' => special = Some(i),
+                '/' if !has_scheme => special = Some(i),
+                ':' if !has_scheme => {
+                    has_scheme = true;
+                    special = Some(i)
+                }
                 '+' | '-' | '.' => {}
                 _ => {
                     break;
@@ -46,9 +72,9 @@ impl UrlScanner {
         // We don't want to extract "abc://foo" out of "1abc://foo".
         // ".abc://foo" and others are ok though, as they feel more like separators.
         if let Some(first) = first {
-            if let Some(digit) = digit {
+            if let Some(special) = special {
                 // Comparing the byte indices with `- 1` is ok as scheme must be ASCII
-                if first > 0 && first - 1 == digit {
+                if first > 0 && first - 1 == special {
                     return None;
                 }
             }
