@@ -176,6 +176,14 @@ fn css() {
 }
 
 #[test]
+fn images() {
+    assert_linked(
+        r#"<img src="http://example.org/test.svg">"#,
+        r#"<img src="|http://example.org/test.svg|">"#,
+    );
+}
+
+#[test]
 fn slash() {
     assert_linked("http://example.org/", "|http://example.org/|");
     assert_linked("http://example.org/a/", "|http://example.org/a/|");
@@ -200,10 +208,7 @@ fn multiple() {
 
 #[test]
 fn international() {
-    assert_linked(
-        "http://üñîçøðé.com/ä",
-        "|http://üñîçøðé.com/ä|",
-    );
+    assert_linked("http://üñîçøðé.com/ä", "|http://üñîçøðé.com/ä|");
     assert_linked("http://example.org/\u{A1}", "|http://example.org/\u{A1}|");
     assert_linked("http://example.org/\u{A2}", "|http://example.org/\u{A2}|");
     assert_linked(
