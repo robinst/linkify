@@ -184,6 +184,32 @@ fn images() {
 }
 
 #[test]
+fn complex_html() {
+    assert_linked(
+        r#"<div><a href="http://example.org"></a></div>"#,
+        r#"<div><a href="|http://example.org|"></a></div>"#,
+    );
+
+    assert_linked(
+        r#"<div><a href="http://example.org"
+        ></a></div>"#,
+        r#"<div><a href="|http://example.org|"
+        ></a></div>"#,
+    );
+
+    assert_linked(
+        r#"<div>
+       <img
+         src="http://example.org/test3.jpg" />
+     </div>"#,
+        r#"<div>
+       <img
+         src="|http://example.org/test3.jpg|" />
+     </div>"#,
+    )
+}
+
+#[test]
 fn slash() {
     assert_linked("http://example.org/", "|http://example.org/|");
     assert_linked("http://example.org/a/", "|http://example.org/a/|");
