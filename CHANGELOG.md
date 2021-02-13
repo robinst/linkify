@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## Unreleased
+### Changed
+- Treat `*` as a delimiter like `.` or `,`, which means they can be part
+  of an URL but not at the end.
+
 ## [0.4.0] - 2019-08-05
 ### Changed
 - Stop URLs when encountering ". This is consistent with RFC 3986, and

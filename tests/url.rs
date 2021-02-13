@@ -160,6 +160,14 @@ fn grave_quote() {
 }
 
 #[test]
+fn asterisk() {
+    assert_linked("https://example.org*", "|https://example.org|*");
+    assert_linked("https://example.org/*", "|https://example.org/|*");
+    assert_linked("https://example.org/**", "|https://example.org/|**");
+    assert_linked("https://example.org/*/a", "|https://example.org/*/a|");
+}
+
+#[test]
 fn html() {
     assert_linked("http://example.org\">", "|http://example.org|\">");
     assert_linked("http://example.org'>", "|http://example.org|'>");
