@@ -100,7 +100,7 @@
 //! [RFC 5321]: https://tools.ietf.org/search/rfc5321
 //! [RFC 6531]: https://tools.ietf.org/search/rfc6531
 
-#![doc(html_root_url = "https://docs.rs/linkify/0.4.0")]
+#![doc(html_root_url = "https://docs.rs/linkify/0.5.0")]
 #![deny(warnings)]
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
