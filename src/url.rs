@@ -1,23 +1,24 @@
 use std::ops::Range;
 
-use crate::scanner::Scanner;
+use crate::{finder::Trigger, scanner::Scanner};
 
 /// Scan for URLs starting from the trigger character ":", requires "://".
 ///
 /// Based on RFC 3986.
 pub struct UrlScanner {
-    pub trigger: char,
+    pub trigger: Trigger,
 }
 
 impl Scanner for UrlScanner {
     fn scan(&self, s: &str, trigger_index: usize) -> Option<Range<usize>> {
-        let (proto, offset) = match self.trigger {
-            '/' => ("//", 2),
-            _ => ("://", 3),
+        let protocol = match self.trigger {
+            Trigger::Slash => "//",
+            Trigger::Colon => "://",
+            _ => return None,
         };
-        let after_slash_slash = trigger_index + offset;
-        // Need at least one character for scheme, and one after '//'
-        if after_slash_slash < s.len() && s[trigger_index..].starts_with(proto) {
+        let after_slash_slash = trigger_index + protocol.len();
+        // Need at least one character for scheme
+        if after_slash_slash < s.len() && s[trigger_index..].starts_with(protocol) {
             if let Some(start) = self.find_start(&s[0..trigger_index]) {
                 if let Some(end) = self.find_end(&s[after_slash_slash..]) {
                     let range = Range {
@@ -37,7 +38,7 @@ impl UrlScanner {
     fn find_start(&self, s: &str) -> Option<usize> {
         // Match protocol relative URLs (`//example.org`)
         // See https://stackoverflow.com/a/15146073/270334
-        if s.is_empty() && self.trigger == '/' {
+        if s.is_empty() && self.trigger == Trigger::Slash {
             return Some(0);
         }
 

@@ -17,6 +17,17 @@ pub struct Link<'t> {
     kind: LinkKind,
 }
 
+/// The type of trigger used for scanning the input
+/// Users should not exhaustively match this enum, because more triggers
+/// may be added in the future.
+#[derive(Debug, PartialEq)]
+#[non_exhaustive]
+pub enum Trigger {
+    Colon,
+    Slash,
+    _At,
+}
+
 impl<'t> Link<'t> {
     /// The start index of the link within the input text.
     #[inline]
@@ -215,9 +226,9 @@ impl<'t> Iterator for Links<'t> {
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
             let trigger = slice.as_bytes()[find_from + i];
             let (scanner, kind): (&dyn Scanner, LinkKind) = match trigger {
-                b':' => (&UrlScanner { trigger: ':' }, LinkKind::Url),
+                b':' => (&UrlScanner { trigger: Trigger::Colon }, LinkKind::Url),
                 b'@' => (&self.email_scanner, LinkKind::Email),
-                b'/' => (&UrlScanner { trigger: '/' }, LinkKind::Url),
+                b'/' => (&UrlScanner { trigger: Trigger::Slash }, LinkKind::Url),
                 _ => unreachable!(),
             };
             if let Some(range) = scanner.scan(slice, find_from + i) {
