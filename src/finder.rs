@@ -25,7 +25,7 @@ pub enum Trigger {
     Colon,
     Slash,
     _At,
-    /// Users should not exhaustively match this enum, because more link types
+    /// Users should not exhaustively match this enum, because more trigger types
     /// may be added in the future.
     #[doc(hidden)]
     __Nonexhaustive,
