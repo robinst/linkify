@@ -21,11 +21,14 @@ pub struct Link<'t> {
 /// Users should not exhaustively match this enum, because more triggers
 /// may be added in the future.
 #[derive(Debug, PartialEq)]
-#[non_exhaustive]
 pub enum Trigger {
     Colon,
     Slash,
     _At,
+    /// Users should not exhaustively match this enum, because more link types
+    /// may be added in the future.
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 impl<'t> Link<'t> {
