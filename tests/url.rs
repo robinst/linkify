@@ -44,6 +44,14 @@ fn authority() {
 }
 
 #[test]
+fn local_links() {
+    assert_linked("http://127.0.0.1", "|http://127.0.0.1|");
+    assert_linked("http://127.0.0.1/", "|http://127.0.0.1/|");
+    assert_linked("http://::1", "|http://::1|");
+    assert_linked("http://::1/", "|http://::1/|");
+}
+
+#[test]
 fn single_links() {
     assert_linked("ab://c", "|ab://c|");
     assert_linked("http://example.org/", "|http://example.org/|");
