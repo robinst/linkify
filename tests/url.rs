@@ -93,6 +93,7 @@ fn illegal_characters_stop_url() {
     assert_linked("http://example.org/\u{0E}", "|http://example.org/|\u{0E}");
     assert_linked("http://example.org/\u{7F}", "|http://example.org/|\u{7F}");
     assert_linked("http://example.org/\u{9F}", "|http://example.org/|\u{9F}");
+    assert_linked("http://example.org/foo|bar", "|http://example.org/foo||bar");
 }
 
 #[test]
