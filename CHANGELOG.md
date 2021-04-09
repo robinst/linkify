@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [0.6.0] - 2021-04-09
+### Changed
+- Stop URLs when encountering `|`. Consistent with RFC and will
+  hopefully not cause problems with real URLs.
+
 ## [0.5.0] - 2021-02-13
 ### Changed
 - Treat `*` as a delimiter like `.` or `,`, which means they can be part
@@ -49,6 +54,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[0.6.0]: https://github.com/robinst/linkify/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/robinst/linkify/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/robinst/linkify/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/robinst/linkify/compare/0.3.0...0.3.1
