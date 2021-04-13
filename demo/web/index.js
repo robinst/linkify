@@ -24,11 +24,11 @@ function handleInput(text) {
     const links = output.getElementsByTagName("a").length;
     timing.innerHTML =
       "✓ <strong>" +
-      millis.toLocaleString() +
+      millis.toLocaleString('en-US') +
       " ms</strong> to linkify " +
-      links.toLocaleString() +
+      links +
       " links in text with " +
-      text.length.toLocaleString() +
+      text.length +
       " characters";
   }
 }
