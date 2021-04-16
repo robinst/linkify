@@ -1,18 +1,25 @@
 use std::ops::Range;
 
-use crate::scanner::Scanner;
+use crate::{finder::Trigger, scanner::Scanner};
 
 /// Scan for URLs starting from the trigger character ":", requires "://".
 ///
 /// Based on RFC 3986.
-pub struct UrlScanner {}
+pub struct UrlScanner {
+    pub trigger: Trigger,
+}
 
 impl Scanner for UrlScanner {
-    fn scan(&self, s: &str, colon: usize) -> Option<Range<usize>> {
-        let after_slash_slash = colon + 3;
-        // Need at least one character for scheme, and one after '//'
-        if colon > 0 && after_slash_slash < s.len() && s[colon..].starts_with("://") {
-            if let Some(start) = self.find_start(&s[0..colon]) {
+    fn scan(&self, s: &str, trigger_index: usize) -> Option<Range<usize>> {
+        let protocol = match self.trigger {
+            Trigger::Slash => "//",
+            Trigger::Colon => "://",
+            _ => return None,
+        };
+        let after_slash_slash = trigger_index + protocol.len();
+        // Need at least one character for scheme
+        if after_slash_slash < s.len() && s[trigger_index..].starts_with(protocol) {
+            if let Some(start) = self.find_start(&s[0..trigger_index]) {
                 if let Some(end) = self.find_end(&s[after_slash_slash..]) {
                     let range = Range {
                         start,
@@ -29,6 +36,12 @@ impl Scanner for UrlScanner {
 impl UrlScanner {
     // See "scheme" in RFC 3986
     fn find_start(&self, s: &str) -> Option<usize> {
+        // Match protocol relative URLs (`//example.org`)
+        // See https://stackoverflow.com/a/15146073/270334
+        if s.is_empty() && self.trigger == Trigger::Slash {
+            return Some(0);
+        }
+
         let mut first = None;
         let mut digit = None;
         for (i, c) in s.char_indices().rev() {

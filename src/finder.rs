@@ -1,7 +1,7 @@
 use std::fmt;
 use std::iter::Peekable;
 
-use memchr::memchr;
+use memchr::{memchr, memchr3};
 use memchr::memchr2;
 
 use crate::email::EmailScanner;
@@ -15,6 +15,20 @@ pub struct Link<'t> {
     start: usize,
     end: usize,
     kind: LinkKind,
+}
+
+/// The type of trigger used for scanning the input
+/// Users should not exhaustively match this enum, because more triggers
+/// may be added in the future.
+#[derive(Debug, PartialEq)]
+pub enum Trigger {
+    Colon,
+    Slash,
+    _At,
+    /// Users should not exhaustively match this enum, because more trigger types
+    /// may be added in the future.
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 impl<'t> Link<'t> {
@@ -111,7 +125,6 @@ pub struct Links<'t> {
 
     trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>>,
     email_scanner: EmailScanner,
-    url_scanner: UrlScanner,
 }
 
 /// Iterator over spans.
@@ -188,13 +201,12 @@ impl Default for LinkFinder {
 
 impl<'t> Links<'t> {
     fn new(text: &'t str, url: bool, email: bool, email_domain_must_have_dot: bool) -> Links<'t> {
-        let url_scanner = UrlScanner {};
         let email_scanner = EmailScanner {
             domain_must_have_dot: email_domain_must_have_dot,
         };
         let trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>> = match (url, email) {
-            (true, true) => Box::new(|s| memchr2(b':', b'@', s)),
-            (true, false) => Box::new(|s| memchr(b':', s)),
+            (true, true) => Box::new(|s| memchr3(b':', b'/', b'@', s)),
+            (true, false) => Box::new(|s| memchr2(b':', b'/', s)),
             (false, true) => Box::new(|s| memchr(b'@', s)),
             (false, false) => Box::new(|_| None),
         };
@@ -203,7 +215,6 @@ impl<'t> Links<'t> {
             rewind: 0,
             trigger_finder,
             email_scanner,
-            url_scanner,
         }
     }
 }
@@ -218,8 +229,9 @@ impl<'t> Iterator for Links<'t> {
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
             let trigger = slice.as_bytes()[find_from + i];
             let (scanner, kind): (&dyn Scanner, LinkKind) = match trigger {
-                b':' => (&self.url_scanner, LinkKind::Url),
+                b':' => (&UrlScanner { trigger: Trigger::Colon }, LinkKind::Url),
                 b'@' => (&self.email_scanner, LinkKind::Email),
+                b'/' => (&UrlScanner { trigger: Trigger::Slash }, LinkKind::Url),
                 _ => unreachable!(),
             };
             if let Some(range) = scanner.scan(slice, find_from + i) {

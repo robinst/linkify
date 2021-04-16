@@ -21,6 +21,7 @@ fn schemes() {
     assert_not_linked("-://foo");
     assert_not_linked(".://foo");
     assert_not_linked("1abc://foo");
+    assert_linked("//foo", "|//foo|");
     assert_linked("a://foo", "|a://foo|");
     assert_linked("a123://foo", "|a123://foo|");
     assert_linked("a123b://foo", "|a123b://foo|");
