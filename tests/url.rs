@@ -89,6 +89,7 @@ fn illegal_characters_stop_url() {
 
 #[test]
 fn delimiter_at_end() {
+    assert_linked("'https://example.org''", "'|https://example.org|''");
     assert_linked("http://example.org/.", "|http://example.org/|.");
     assert_linked("http://example.org/..", "|http://example.org/|..");
     assert_linked("http://example.org/,", "|http://example.org/|,");
