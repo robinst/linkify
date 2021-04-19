@@ -89,7 +89,6 @@ fn illegal_characters_stop_url() {
 
 #[test]
 fn delimiter_at_end() {
-    assert_linked("'https://example.org''", "'|https://example.org|''");
     assert_linked("http://example.org/.", "|http://example.org/|.");
     assert_linked("http://example.org/..", "|http://example.org/|..");
     assert_linked("http://example.org/,", "|http://example.org/|,");
@@ -131,6 +130,7 @@ fn matching_punctuation_tricky() {
 
 #[test]
 fn single_quote() {
+    assert_linked("'https://example.org''", "'|https://example.org|''");
     assert_linked(
         "http://example.org/\'_(foo)",
         "|http://example.org/\'_(foo)|",
