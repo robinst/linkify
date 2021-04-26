@@ -2,6 +2,8 @@ use std::ops::Range;
 
 use crate::scanner::Scanner;
 
+const QUOTES: &[char] = &['\'', '\"'];
+
 /// Scan for URLs starting from the trigger character ":", requires "://".
 ///
 /// Based on RFC 3986.
@@ -12,8 +14,8 @@ impl Scanner for UrlScanner {
         let after_slash_slash = colon + 3;
         // Need at least one character for scheme, and one after '//'
         if colon > 0 && after_slash_slash < s.len() && s[colon..].starts_with("://") {
-            if let Some(start) = self.find_start(&s[0..colon]) {
-                if let Some(end) = self.find_end(&s[after_slash_slash..]) {
+            if let (Some(start), quote) = self.find_start(&s[0..colon]) {
+                if let Some(end) = self.find_end(&s[after_slash_slash..], quote) {
                     let range = Range {
                         start,
                         end: after_slash_slash + end,
@@ -28,9 +30,10 @@ impl Scanner for UrlScanner {
 
 impl UrlScanner {
     // See "scheme" in RFC 3986
-    fn find_start(&self, s: &str) -> Option<usize> {
+    fn find_start(&self, s: &str) -> (Option<usize>, Option<char>) {
         let mut first = None;
         let mut digit = None;
+        let mut quote = None;
         for (i, c) in s.char_indices().rev() {
             match c {
                 'a'..='z' | 'A'..='Z' => first = Some(i),
@@ -38,6 +41,12 @@ impl UrlScanner {
                 // scheme special
                 '+' | '-' | '.' => {}
                 _ => {
+                    // Check if there's a quote before the scheme,
+                    // and stop once we encounter one of those quotes.
+                    // https://github.com/robinst/linkify/issues/20
+                    if QUOTES.contains(&c) {
+                        quote = Some(c);
+                    }
                     break;
                 }
             }
@@ -49,14 +58,14 @@ impl UrlScanner {
             if let Some(digit) = digit {
                 // Comparing the byte indices with `- 1` is ok as scheme must be ASCII
                 if first > 0 && first - 1 == digit {
-                    return None;
+                    return (None, quote);
                 }
             }
         }
-        first
+        (first, quote)
     }
 
-    fn find_end(&self, s: &str) -> Option<usize> {
+    fn find_end(&self, s: &str, quote: Option<char>) -> Option<usize> {
         let mut round = 0;
         let mut square = 0;
         let mut curly = 0;
@@ -124,6 +133,10 @@ impl UrlScanner {
                         break;
                     }
                     true
+                }
+                _ if Some(c) == quote => {
+                    // Found matching quote from beginning of URL, stop now
+                    break;
                 }
                 '\'' => {
                     single_quote = !single_quote;
