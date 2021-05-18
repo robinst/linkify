@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [0.7.0] - 2021-05-18
+### Changed
+- URLs that have a quote character like `'` or `"` before them will stop
+  when that quote character is encountered, e.g. in
+  `"https://example.org/","`, the URL will not include any quotes. Before,
+  it would run until the end because the quotes after the slash were an
+  even number. (#20)
+- Bump MSRV (minimum supported Rust version) to 1.41
+
 ## [0.6.0] - 2021-04-09
 ### Changed
 - Stop URLs when encountering `|`. Consistent with RFC and will
@@ -22,7 +31,7 @@ with the exception that 0.x versions can break between minor versions.
   it seems unlikely that a user would have an unescaped " in an URL
   anyway, as browsers escape it when copying an URL with it.
 - Stop URLs at \` characters too, same as < and >
-- Bump MSRV (minimal supported Rust version) to 1.31 (2018 edition)
+- Bump MSRV (minimum supported Rust version) to 1.31 (2018 edition)
 
 ## [0.3.1] - 2018-02-04
 ### Changed
@@ -54,6 +63,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[0.7.0]: https://github.com/robinst/linkify/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/robinst/linkify/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/robinst/linkify/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/robinst/linkify/compare/0.3.1...0.4.0
