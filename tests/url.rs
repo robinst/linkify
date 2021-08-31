@@ -414,6 +414,21 @@ fn international_without_protocol() {
 }
 
 #[test]
+fn domain_tld_without_protocol_must_be_long() {
+    assert_linked_without_protocol("example.", "example.");
+    assert_linked_without_protocol("example./", "example./");
+    assert_linked_without_protocol("foo.example.", "foo.example.");
+    assert_linked_without_protocol("example.c", "example.c");
+    assert_linked_without_protocol("example.co", "|example.co|");
+    assert_linked_without_protocol("example.com", "|example.com|");
+    assert_linked_without_protocol("e.com", "|e.com|");
+    assert_linked_without_protocol("exampl.e.c", "exampl.e.c");
+    assert_linked_without_protocol("exampl.e.co", "|exampl.e.co|");
+    assert_linked_without_protocol("e.xample.c", "e.xample.c");
+    assert_linked_without_protocol("e.xample.co", "|e.xample.co|");
+}
+
+#[test]
 fn skip_emails_without_protocol() {
     assert_not_linked_without_protocol("foo.bar@example.org");
 }

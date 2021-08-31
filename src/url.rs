@@ -32,6 +32,28 @@ impl Scanner for UrlScanner {
         };
         let after_separator = separator + separator_len;
 
+        // When the separator is a dot, which appens when scanning for URLs without a scheme
+        // prefix, we must make sure that the TLD is at least 2 characters long
+        if !is_slash_slash {
+            let end = &s[after_separator..];
+            let after_last_dot = end
+                .split('/')
+                .next()
+                .unwrap()
+                .rfind('.')
+                .map(|pos| pos + 1)
+                .unwrap_or(0);
+            let tld_too_short = end[after_last_dot..]
+                .chars()
+                .take_while(|c| c.is_ascii_alphabetic())
+                .take(2)
+                .count()
+                < 2;
+            if tld_too_short {
+                return None;
+            }
+        }
+
         // Need at least one character for scheme, and one after '//'
         if after_separator < s.len() {
             if let (Some(start), quote) = self.find_start(&s[0..separator], is_slash_slash) {
