@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use crate::email;
 use crate::scanner::Scanner;
 
 const QUOTES: &[char] = &['\'', '\"'];
@@ -32,9 +33,9 @@ impl Scanner for UrlScanner {
         };
         let after_separator = separator + separator_len;
 
-        // When the separator is a dot, which appens when scanning for URLs without a scheme
-        // prefix, we must make sure that the TLD is at least 2 characters long
+        // When scanning a dot, for URLs without a scheme, do some additional checks
         if !is_slash_slash {
+            // The TLD must be at least 2 characters long
             let end = &s[after_separator..];
             let after_last_dot = end
                 .split('/')
@@ -50,6 +51,11 @@ impl Scanner for UrlScanner {
                 .count()
                 < 2;
             if tld_too_short {
+                return None;
+            }
+
+            // If this is an email address, don't scan it as URL
+            if email::is_mail(&s[after_separator..]) {
                 return None;
             }
         }
@@ -89,6 +95,7 @@ impl UrlScanner {
                     special = Some(i)
                 }
                 '+' | '-' | '.' => {}
+                '@' => return (None, None),
                 c if QUOTES.contains(&c) => {
                     // Check if there's a quote before the scheme,
                     // and stop once we encounter one of those quotes.

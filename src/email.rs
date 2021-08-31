@@ -130,3 +130,17 @@ impl EmailScanner {
         }
     }
 }
+
+/// Helper function to check if given string is considered an email address.
+#[inline]
+pub(crate) fn is_mail(input: &str) -> bool {
+    input
+        .char_indices()
+        .filter(|(_, c)| *c == '@')
+        .any(|(i, _)| {
+            let scanner = EmailScanner {
+                domain_must_have_dot: true,
+            };
+            scanner.scan(input, i).is_some()
+        })
+}
