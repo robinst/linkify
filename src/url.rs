@@ -67,15 +67,18 @@ impl UrlScanner {
                     special = Some(i)
                 }
                 '+' | '-' | '.' => {}
-                _ => {
+                c if QUOTES.contains(&c) => {
                     // Check if there's a quote before the scheme,
                     // and stop once we encounter one of those quotes.
                     // https://github.com/robinst/linkify/issues/20
-                    if QUOTES.contains(&c) {
-                        quote = Some(c);
-                    }
-                    break;
+                    quote = Some(c);
                 }
+                c if !has_scheme && !matches!(c, '(' | ')' | '[' | ']' | '{' | '}' | ' ') => {
+                    // Detect the start for links using unicode when having links without a scheme,
+                    // then looking for ASCII alpha characters is not enough
+                    first = Some(i);
+                }
+                _ => break,
             }
         }
 

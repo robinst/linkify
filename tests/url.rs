@@ -387,6 +387,7 @@ fn multiple_mixed_protocol() {
 
 #[test]
 fn international() {
+    assert_linked("http://üñîçøðé.com", "|http://üñîçøðé.com|");
     assert_linked("http://üñîçøðé.com/ä", "|http://üñîçøðé.com/ä|");
     assert_linked("http://example.org/\u{A1}", "|http://example.org/\u{A1}|");
     assert_linked("http://example.org/\u{A2}", "|http://example.org/\u{A2}|");
@@ -403,6 +404,7 @@ fn international() {
 
 #[test]
 fn international_without_protocol() {
+    assert_linked_without_protocol("üñîçøðé.com", "|üñîçøðé.com|");
     assert_linked_without_protocol("üñîçøðé.com/ä", "|üñîçøðé.com/ä|");
     assert_linked_without_protocol("example.org/\u{A1}", "|example.org/\u{A1}|");
     assert_linked_without_protocol("example.org/\u{A2}", "|example.org/\u{A2}|");
