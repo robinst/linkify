@@ -17,4 +17,10 @@ exclude = ["/.github"]
 memchr = "2.0.1"
 
 [dev-dependencies]
+criterion = "0.3"
 doc-comment = "0.3.3"
+
+
+[[bench]]
+name = "bench"
+harness = false
