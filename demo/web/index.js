@@ -6,17 +6,17 @@ pkg
   .then((m) => {
     rustModule = m;
     // In case of a page reload, the input can contain remembered text, so linkify that.
-    handleInput(input.value);
+    handleInput(input.value, schemeOption.checked);
   })
   .catch((e) => console.error("Failed to load WebAssembly module", e));
 
-function linkifyText(input) {
-  return rustModule !== undefined ? rustModule.linkify_text(input) : undefined;
+function linkifyText(input, allowWithoutScheme) {
+  return rustModule !== undefined ? rustModule.linkify_text(input, allowWithoutScheme) : undefined;
 }
 
-function handleInput(text) {
+function handleInput(text, allowWithoutScheme) {
   const start = performance.now();
-  output.innerHTML = linkifyText(text);
+  output.innerHTML = linkifyText(text, allowWithoutScheme);
   const millis = Math.ceil(performance.now() - start);
   if (text.length === 0) {
     timing.innerHTML = "";
@@ -35,7 +35,7 @@ function handleInput(text) {
 
 function setExample(text) {
   input.value = text;
-  handleInput(text);
+  handleInput(text, schemeOption.checked);
 }
 
 function setLongExample(desc, n) {
@@ -47,14 +47,17 @@ function setLongExample(desc, n) {
 }
 
 const input = document.getElementById("input");
+const schemeOption = document.getElementById("allow-without-scheme");
 const output = document.getElementById("output");
 const timing = document.getElementById("timing");
-input.oninput = (e) => handleInput(e.target.value);
+input.oninput = (e) => handleInput(e.target.value, schemeOption.checked);
+schemeOption.oninput = (e) => handleInput(input.value, e.target.checked);
 
 const urlsExample =
-  "- Some links: https://example.org, https://example.com/a/b/c. See how ',' and '.' are not included in the link?\n" +
-  "- What about parentheses?: (https://example.org). What if they are part of the link?: https://en.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)\n" +
-  "- Unicode: https://en.wikipedia.org/wiki/\uD83D\uDE0A";
+  "Some links: https://example.org, https://example.com/a.\n" +
+  "See how ',' and '.' are not included in the link?\n\n" +
+  "What about parentheses (https://example.org)? What if they are part of the link?: https://en.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)\n\n" +
+  "Without scheme: example.com or example.com/a";
 const emailExample = "abc@example.org, foo+bar@example.org;hi@example.org";
 
 document.getElementById("example-urls").onclick = () => setExample(urlsExample);

@@ -2,8 +2,9 @@ use wasm_bindgen::prelude::*;
 use linkify::{LinkFinder, LinkKind};
 
 #[wasm_bindgen]
-pub fn linkify_text(text: &str) -> String {
-    let link_finder = LinkFinder::new();
+pub fn linkify_text(text: &str, allow_without_scheme: bool) -> String {
+    let mut link_finder = LinkFinder::new();
+    link_finder.url_must_have_scheme(!allow_without_scheme);
     let mut bytes = Vec::new();
     for span in link_finder.spans(text) {
         match span.kind() {

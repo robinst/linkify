@@ -118,14 +118,19 @@
         border-color: rgb(73, 147, 243);
       }
 
-      #input,
-      #output {
-        flex-basis: 10em;
-        line-height: 1.5em;
-        box-sizing: border-box;
+      .io {
+        display: flex;
+        flex-direction: column;
         margin-top: 1em;
         margin-left: 1em;
         margin-right: 1em;
+      }
+
+      #input,
+      #output {
+        flex-basis: 12em;
+        line-height: 1.5em;
+        box-sizing: border-box;
         padding: 0.5em 0.5em;
         border: 2px solid rgb(206, 208, 210);
         border-radius: 3px;
@@ -138,7 +143,6 @@
       }
 
       #timing {
-        margin-left: 1em;
         margin-top: 0.5em;
         font-size: 0.8em;
         padding: 0.5em;
@@ -193,10 +197,17 @@
           <button id="example-very-long">very long</button>, or type/paste some
           other text with links:
         </p>
-        <textarea id="input" placeholder="Type text with links here"></textarea>
+        <div class="io">
+          <textarea id="input" placeholder="Type text with links here"></textarea>
+          <label>
+            <input id="allow-without-scheme" type="checkbox" checked> Allow URLs without scheme (e.g. example.com)
+          </label>
+        </div>
         <div class="label"><label for="output">Linkified:</label></div>
-        <div id="output"></div>
-        <div id="timing"></div>
+        <div class="io">
+          <div id="output"></div>
+          <div id="timing"></div>
+        </div>
       </div>
     </div>
   </body>
