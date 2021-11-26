@@ -57,6 +57,21 @@ assert_eq!(32, link.end());
 assert_eq!(&LinkKind::Url, link.kind());
 ```
 
+Option to allow URLs without schemes:
+
+```rust
+use linkify::LinkFinder;
+
+let input = "Look, no scheme: example.org/foo";
+let mut finder = LinkFinder::new();
+
+// true by default
+finder.url_must_have_scheme(false);
+
+let links: Vec<_> = finder.links(input).collect();
+assert_eq!(links[0].as_str(), "example.org/foo");
+```
+
 Restrict the kinds of links:
 
 ```rust
