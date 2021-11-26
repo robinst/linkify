@@ -9,7 +9,9 @@ with the exception that 0.x versions can break between minor versions.
 ## [0.8.0] - 2021-11-26
 ### Added
 - New option `url_must_have_scheme` on `LinkFinder` that can be set to
-  `false` to allow URLs without scheme/protocol such as `example.com`
+  `false` to allow URLs without scheme/protocol such as `example.com`.
+  Note that there is no allowlist for top-level domains, if you want
+  that you will have to implement it yourself.
 ### Changed
 - Bump MSRV (minimum supported Rust version) to 1.46
 
