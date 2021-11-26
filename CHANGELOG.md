@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
-## Unreleased
+## [0.8.0] - 2021-11-26
+### Added
+- New option `url_must_have_scheme` on `LinkFinder` that can be set to
+  `false` to allow URLs without scheme/protocol such as `example.com`
 ### Changed
 - Bump MSRV (minimum supported Rust version) to 1.46
 
@@ -67,6 +70,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[0.8.0]: https://github.com/robinst/linkify/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/robinst/linkify/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/robinst/linkify/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/robinst/linkify/compare/0.4.0...0.5.0

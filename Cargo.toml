@@ -1,6 +1,6 @@
 [package]
 name = "linkify"
-version = "0.7.0" # remember to update html_root_url
+version = "0.8.0" # remember to update html_root_url
 authors = ["Robin Stocker <robin@nibor.org>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
