@@ -110,10 +110,10 @@
 //! If you need to validate URLs, e.g. for checking TLDs, use another library on
 //! the returned links.
 //!
-//! [RFC 3986]: https://tools.ietf.org/search/rfc3986
-//! [RFC 3987]: https://tools.ietf.org/search/rfc3987
-//! [RFC 5321]: https://tools.ietf.org/search/rfc5321
-//! [RFC 6531]: https://tools.ietf.org/search/rfc6531
+//! [RFC 3986]: https://datatracker.ietf.org/doc/html/rfc3986
+//! [RFC 3987]: https://datatracker.ietf.org/doc/html/rfc3987
+//! [RFC 5321]: https://datatracker.ietf.org/doc/html/rfc5321
+//! [RFC 6531]: https://datatracker.ietf.org/doc/html/rfc6531
 
 #![doc(html_root_url = "https://docs.rs/linkify/0.8.0")]
 #![deny(warnings)]
