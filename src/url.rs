@@ -3,6 +3,15 @@ use std::ops::Range;
 use crate::email;
 use crate::scanner::Scanner;
 
+/// Minimum valid URL length
+///
+/// The shortest valid URL (without a scheme) might be g.cn (Google China),
+/// which consists of four characters.
+/// We set this as a lower threshold for parsing URLs from plaintext
+/// to avoid false-positives and as a slight performance optimization.
+/// This threshold might be adjusted in the future.
+const MIN_URL_LENGTH: usize = 4;
+
 const QUOTES: &[char] = &['\'', '\"'];
 
 /// Scan for URLs starting from the trigger character ":", requires "://".
@@ -20,6 +29,11 @@ impl Scanner for UrlScanner {
     fn scan(&self, s: &str, separator: usize) -> Option<Range<usize>> {
         // There must be something before separator for scheme or host
         if separator == 0 {
+            return None;
+        }
+
+        if s.len() < MIN_URL_LENGTH {
+            // URL shorter than threshold; skip parsing
             return None;
         }
 
