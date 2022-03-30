@@ -14,7 +14,10 @@ keywords = ["web", "text", "url", "links"]
 exclude = ["/.github"]
 
 [dependencies]
+error-chain = "0.12.4"
 memchr = "2.0.1"
+structopt = "0.3.20"
+url = "2.1.1"
 
 [dev-dependencies]
 criterion = "0.3"
