@@ -32,8 +32,17 @@ In addition to URLs, it can also find email addresses.
 
 ## Demo 🧑‍🔬
 
-Try it out on the demo playground (Rust compiled to WebAssembly):
+Try it out online on the demo playground (Rust compiled to WebAssembly):
 https://robinst.github.io/linkify/
+
+If you want to use it on the command line, try [lychee](https://github.com/lycheeverse/lychee).
+It uses linkify to extract all links and checks if they're valid, but it can also just print them like this:
+
+```
+$ echo 'Test https://example.org (and https://example.com)' | lychee --dump -
+https://example.org/
+https://example.com/
+```
 
 ## Usage
 
