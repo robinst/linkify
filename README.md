@@ -38,7 +38,7 @@ https://robinst.github.io/linkify/
 If you want to use it on the command line, try [lychee](https://github.com/lycheeverse/lychee).
 It uses linkify to extract all links and checks if they're valid, but it can also just print them like this:
 
-```
+```shell
 $ echo 'Test https://example.org (and https://example.com)' | lychee --dump -
 https://example.org/
 https://example.com/
