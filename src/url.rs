@@ -26,7 +26,7 @@ impl Scanner for UrlScanner {
     /// schemes are found.
     ///
     /// Returns `None` if none was found, or if an invalid separator index was given.
-    fn scan(&self, s: &str, separator: usize) -> Option<Range<usize>> {
+    fn scan(&self, s: &str, separator: usize, extract_wildcard_urls: bool) -> Option<Range<usize>> {
         // There must be something before separator for scheme or host
         if separator == 0 {
             return None;
@@ -77,7 +77,9 @@ impl Scanner for UrlScanner {
         // Need at least one character for scheme, and one after '//'
         if after_separator < s.len() {
             if let (Some(start), quote) = self.find_start(&s[0..separator], is_slash_slash) {
-                if let Some(end) = self.find_end(&s[after_separator..], quote) {
+                if let Some(end) =
+                    self.find_end(&s[after_separator..], quote, extract_wildcard_urls)
+                {
                     let range = Range {
                         start,
                         end: after_separator + end,
@@ -138,7 +140,7 @@ impl UrlScanner {
         (first, quote)
     }
 
-    fn find_end(&self, s: &str, quote: Option<char>) -> Option<usize> {
+    fn find_end(&self, s: &str, quote: Option<char>, extract_wildcard_urls: bool) -> Option<usize> {
         let mut round = 0;
         let mut square = 0;
         let mut curly = 0;
@@ -162,6 +164,11 @@ impl UrlScanner {
                     // These may be part of an URL but not at the end. It's not that the spec
                     // doesn't allow them, but they are frequently used in plain text as delimiters
                     // where they're not meant to be part of the URL.
+                    if !extract_wildcard_urls {
+                        // Stop and return early in case wildcard URLs like `http://*.example.com`
+                        // shall not be extracted.
+                        break;
+                    }
                     false
                 }
                 '/' => {

@@ -11,7 +11,8 @@ pub struct EmailScanner {
 }
 
 impl Scanner for EmailScanner {
-    fn scan(&self, s: &str, at: usize) -> Option<Range<usize>> {
+    // Note: We currently don't extract email addresses containing wildcards
+    fn scan(&self, s: &str, at: usize, _extract_wildcard_urls: bool) -> Option<Range<usize>> {
         if let Some(start) = self.find_start(&s[0..at]) {
             let after = at + 1;
             if let Some(end) = self.find_end(&s[after..]) {
@@ -141,6 +142,6 @@ pub(crate) fn is_mail(input: &str) -> bool {
             let scanner = EmailScanner {
                 domain_must_have_dot: true,
             };
-            scanner.scan(input, i).is_some()
+            scanner.scan(input, i, true).is_some()
         })
 }

@@ -46,7 +46,7 @@ https://example.com/
 
 ## Usage
 
-Basic usage:
+### Basic usage
 
 ```rust
 extern crate linkify;
@@ -66,7 +66,7 @@ assert_eq!(32, link.end());
 assert_eq!(&LinkKind::Url, link.kind());
 ```
 
-Option to allow URLs without schemes:
+### Option to allow URLs without schemes
 
 ```rust
 use linkify::LinkFinder;
@@ -81,7 +81,26 @@ let links: Vec<_> = finder.links(input).collect();
 assert_eq!(links[0].as_str(), "example.org/foo");
 ```
 
-Restrict the kinds of links:
+### Skip wildcard URLs
+
+By default, linkify also extracts wildcard URLs like
+http://*.example.org. You can disable that.
+
+
+```rust
+use linkify::LinkFinder;
+
+let input = "http://*.example.org";
+let mut finder = LinkFinder::new();
+
+// true by default
+finder.wildcards(false);
+
+let links: Vec<_> = finder.links(input).collect();
+assert!(links.is_empty());
+```
+
+### Restrict the kinds of links
 
 ```rust
 use linkify::{LinkFinder, LinkKind};

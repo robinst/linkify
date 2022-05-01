@@ -443,6 +443,22 @@ fn avoid_multiple_matches_without_protocol() {
 }
 
 #[test]
+fn wildcard_urls() {
+    let finder = LinkFinder::new();
+    let links: Vec<_> = finder.links("http://*.example.com").collect();
+    assert_eq!(links.len(), 1);
+    assert_eq!(links[0].as_str(), "http://*.example.com");
+}
+
+#[test]
+fn no_wildcard_urls() {
+    let mut finder = LinkFinder::new();
+    finder.wildcards(false);
+    let links: Vec<_> = finder.links("http://*.example.com").collect();
+    assert!(links.is_empty());
+}
+
+#[test]
 fn fuzz() {
     assert_not_linked("ab:/ϸ");
 }

@@ -102,6 +102,7 @@ pub struct LinkFinder {
     email_domain_must_have_dot: bool,
     url: bool,
     url_must_have_scheme: bool,
+    extract_wildcard_urls: bool,
 }
 
 /// Iterator for finding links.
@@ -112,6 +113,7 @@ pub struct Links<'t> {
     trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>>,
     email_scanner: EmailScanner,
     url_scanner: UrlScanner,
+    extract_wildcard_urls: bool,
 }
 
 /// Iterator over spans.
@@ -132,7 +134,14 @@ impl LinkFinder {
             email_domain_must_have_dot: true,
             url: true,
             url_must_have_scheme: true,
+            extract_wildcard_urls: true,
         }
+    }
+
+    /// Add support for extracting wildcard URLs like https://*.example.com
+    pub fn wildcards(&mut self, value: bool) -> &mut LinkFinder {
+        self.extract_wildcard_urls = value;
+        self
     }
 
     /// Require the domain parts of email addresses to have at least one dot.
@@ -177,6 +186,7 @@ impl LinkFinder {
             self.url_must_have_scheme,
             self.email,
             self.email_domain_must_have_dot,
+            self.extract_wildcard_urls,
         )
     }
 
@@ -211,6 +221,7 @@ impl<'t> Links<'t> {
         url_must_have_scheme: bool,
         email: bool,
         email_domain_must_have_dot: bool,
+        extract_wildcard_urls: bool,
     ) -> Links<'t> {
         let url_scanner = UrlScanner;
         let email_scanner = EmailScanner {
@@ -232,6 +243,7 @@ impl<'t> Links<'t> {
             trigger_finder,
             email_scanner,
             url_scanner,
+            extract_wildcard_urls,
         }
     }
 }
@@ -250,7 +262,7 @@ impl<'t> Iterator for Links<'t> {
                 b'@' => (&self.email_scanner, LinkKind::Email),
                 _ => unreachable!(),
             };
-            if let Some(range) = scanner.scan(slice, find_from + i) {
+            if let Some(range) = scanner.scan(slice, find_from + i, self.extract_wildcard_urls) {
                 let start = self.rewind + range.start;
                 let end = self.rewind + range.end;
                 self.rewind = end;
