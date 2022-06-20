@@ -9,16 +9,20 @@ pub fn linkify_text(text: &str, allow_without_scheme: bool) -> String {
     for span in link_finder.spans(text) {
         match span.kind() {
             Some(LinkKind::Url) => {
+                let mut url = span.as_str().to_string();
+                if !url.contains(":") {
+                    url.insert_str(0, "https://");
+                }
                 bytes.extend_from_slice(b"<a href=\"");
-                escape(span.as_str(), &mut bytes);
-                bytes.extend_from_slice(b"\">");
+                escape(&url, &mut bytes);
+                bytes.extend_from_slice(b"\" title=\"URL\">");
                 escape(span.as_str(), &mut bytes);
                 bytes.extend_from_slice(b"</a>");
             }
             Some(LinkKind::Email) => {
                 bytes.extend_from_slice(b"<a href=\"mailto:");
                 escape(span.as_str(), &mut bytes);
-                bytes.extend_from_slice(b"\">");
+                bytes.extend_from_slice(b"\" title=\"email\">");
                 escape(span.as_str(), &mut bytes);
                 bytes.extend_from_slice(b"</a>");
             }
