@@ -35,10 +35,10 @@ fn schemes() {
 #[test]
 fn authority() {
     assert_not_linked("ab://");
-    assert_not_linked("http://");
-    assert_not_linked("http:// ");
-    assert_not_linked("\"http://\"");
-    assert_not_linked("\"http://...\", ");
+    assert_not_linked("file://");
+    assert_not_linked("file:// ");
+    assert_not_linked("\"file://\"");
+    assert_not_linked("\"file://...\", ");
 
     assert_linked("http://a.", "|http://a|.");
 }
@@ -417,7 +417,7 @@ fn international_without_protocol() {
 fn domain_tld_without_protocol_must_be_long() {
     assert_urls_without_protocol("example.", "example.");
     assert_urls_without_protocol("example./", "example./");
-    assert_urls_without_protocol("foo.example.", "foo.example.");
+    assert_urls_without_protocol("foo.com.", "|foo.com|.");
     assert_urls_without_protocol("example.c", "example.c");
     assert_urls_without_protocol("example.co", "|example.co|");
     assert_urls_without_protocol("example.com", "|example.com|");
@@ -426,6 +426,7 @@ fn domain_tld_without_protocol_must_be_long() {
     assert_urls_without_protocol("exampl.e.co", "|exampl.e.co|");
     assert_urls_without_protocol("e.xample.c", "e.xample.c");
     assert_urls_without_protocol("e.xample.co", "|e.xample.co|");
+    assert_urls_without_protocol("v1.1.1", "v1.1.1");
 }
 
 #[test]

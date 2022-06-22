@@ -81,7 +81,7 @@ fn domain_must_have_dot_false() {
     assert_linked_with(&finder, "a@b", "|a@b|");
     assert_linked_with(&finder, "a@b.", "|a@b|.");
 
-    assert_linked_with(&finder, "a@b-.", "|a@b|-.");
+    assert_linked_with(&finder, "a@b.", "|a@b|.");
 }
 
 #[test]

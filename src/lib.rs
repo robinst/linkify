@@ -120,6 +120,7 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 
+mod domains;
 mod email;
 mod finder;
 mod scanner;

@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use crate::domains::find_domain_end;
 use crate::email;
 use crate::scanner::Scanner;
 
@@ -14,7 +15,7 @@ const MIN_URL_LENGTH: usize = 4;
 
 const QUOTES: &[char] = &['\'', '\"'];
 
-/// Scan for URLs starting from the trigger character ":", requires "://".
+/// Scan for URLs starting from the trigger character ":" (requires "://") or "." for plain domains.
 ///
 /// Based on RFC 3986.
 pub struct UrlScanner;
@@ -47,55 +48,59 @@ impl Scanner for UrlScanner {
         };
         let after_separator = separator + separator_len;
 
-        // When scanning a dot, for URLs without a scheme, do some additional checks
-        if !is_slash_slash {
-            // The TLD must be at least 2 characters long
-            let end = &s[after_separator..];
-            let after_last_dot = end
-                .split('/')
-                .next()
-                .unwrap()
-                .rfind('.')
-                .map(|pos| pos + 1)
-                .unwrap_or(0);
-            let tld_too_short = end[after_last_dot..]
-                .chars()
-                .take_while(|c| c.is_ascii_alphabetic())
-                .take(2)
-                .count()
-                < 2;
-            if tld_too_short {
-                return None;
+        // TODO: Maybe separate out these two things into their own scanners?
+        //  They can still share code, as we're doing between email and URL scanners already anyway.
+        if is_slash_slash {
+            // Need at least one character after '//'
+            if after_separator < s.len() {
+                if let (Some(start), quote) = self.find_scheme(&s[0..separator]) {
+                    let s = &s[after_separator..];
+                    if let Some(after_authority) = self.find_authority(s) {
+                        if let Some(end) = self.find_end(&s[after_authority..], quote) {
+                            if after_authority == 0 && end == 0 {
+                                return None;
+                            }
+
+                            let range = Range {
+                                start,
+                                end: after_separator + after_authority + end,
+                            };
+                            return Some(range);
+                        }
+                    }
+                }
             }
 
+            None
+        } else {
             // If this is an email address, don't scan it as URL
             if email::is_mail(&s[after_separator..]) {
                 return None;
             }
-        }
 
-        // Need at least one character for scheme, and one after '//'
-        if after_separator < s.len() {
-            if let (Some(start), quote) = self.find_start(&s[0..separator], is_slash_slash) {
-                if let Some(end) = self.find_end(&s[after_separator..], quote) {
-                    let range = Range {
-                        start,
-                        end: after_separator + end,
-                    };
-                    return Some(range);
+            if let (Some(start), quote) = self.find_domain_start(&s[0..separator]) {
+                // Not sure if we should re-use find_authority or do a more strict domain-only
+                // check here.
+
+                let s = &s[start..];
+                if let (Some(domain_end), Some(_)) = self.find_domain_port_end(s) {
+                    if let Some(end) = self.find_end(&s[domain_end..], quote) {
+                        let range = Range {
+                            start,
+                            end: start + domain_end + end,
+                        };
+                        return Some(range);
+                    }
                 }
             }
+
+            None
         }
-        None
     }
 }
 
 impl UrlScanner {
-    // For URL searching starting before the `://` separator, the `has_scheme` parameter should be
-    // true because the URL will have a scheme for sure. If searching before the `.` separator, it
-    // should be `false` as we might search over the scheme definition for the scheme being optional.
-    // See "scheme" in RFC 3986
-    fn find_start(&self, s: &str, mut has_scheme: bool) -> (Option<usize>, Option<char>) {
+    fn find_scheme(&self, s: &str) -> (Option<usize>, Option<char>) {
         let mut first = None;
         let mut special = None;
         let mut quote = None;
@@ -103,11 +108,6 @@ impl UrlScanner {
             match c {
                 'a'..='z' | 'A'..='Z' => first = Some(i),
                 '0'..='9' => special = Some(i),
-                '/' if !has_scheme => special = Some(i),
-                ':' if !has_scheme => {
-                    has_scheme = true;
-                    special = Some(i)
-                }
                 '+' | '-' | '.' => {}
                 '@' => return (None, None),
                 c if QUOTES.contains(&c) => {
@@ -115,11 +115,6 @@ impl UrlScanner {
                     // and stop once we encounter one of those quotes.
                     // https://github.com/robinst/linkify/issues/20
                     quote = Some(c);
-                }
-                c if !has_scheme && !matches!(c, '(' | ')' | '[' | ']' | '{' | '}' | ' ') => {
-                    // Detect the start for links using unicode when having links without a scheme,
-                    // then looking for ASCII alpha characters is not enough
-                    first = Some(i);
                 }
                 _ => break,
             }
@@ -138,6 +133,127 @@ impl UrlScanner {
         (first, quote)
     }
 
+    // For URL searching starting before the `://` separator, the `has_scheme` parameter should be
+    // true because the URL will have a scheme for sure. If searching before the `.` separator, it
+    // should be `false` as we might search over the scheme definition for the scheme being optional.
+    // See "scheme" in RFC 3986
+    // The rules are basically:
+    // - Domain is labels separated by `.`
+    // - Label can not start or end with `-`
+    // - Label can contain letters, digits, `-` or Unicode
+    fn find_domain_start(&self, s: &str) -> (Option<usize>, Option<char>) {
+        let mut first = None;
+        let mut quote = None;
+
+        for (i, c) in s.char_indices().rev() {
+            match c {
+                'a'..='z' | 'A'..='Z' | '0'..='9' | '\u{80}'..=char::MAX => first = Some(i),
+                // If we had something valid like `https://www.` we'd have found it with the ":"
+                // scanner already. We don't want to allow `.../www.example.com` just by itself.
+                // We *could* allow `//www.example.com` (scheme-relative URLs) in the future.
+                '/' => return (None, None),
+                // Similar to above, if this was an email we'd have found it already.
+                '@' => return (None, None),
+                // TODO: What about ".", do we need to reject it as well?
+                '-' => {
+                    if first == None {
+                        // Domain label can't end with `-`
+                        return (None, None);
+                    } else {
+                        first = Some(i);
+                    }
+                }
+                c if QUOTES.contains(&c) => {
+                    // Check if there's a quote before, and stop once we encounter one of those quotes,
+                    // e.g. with `"www.example.com"`
+                    quote = Some(c);
+                }
+                _ => break,
+            }
+        }
+
+        if let Some(first) = first {
+            if s[first..].starts_with('-') {
+                // Domain label can't start with `-`
+                return (None, None);
+            }
+        }
+
+        (first, quote)
+    }
+
+    fn find_authority(&self, s: &str) -> Option<usize> {
+        let mut had_userinfo = false;
+        // let mut maybe_ipv4 = true;
+        // let mut maybe_domain = true;
+        let mut can_be_last = true;
+
+        let mut end = Some(0);
+        // let
+        // let mut maybe_ipv6 = true;
+
+        for (i, c) in s.char_indices() {
+            can_be_last = true;
+            match c {
+                'a'..='z' | 'A'..='Z' | '0'..='9' | '\u{80}'..=char::MAX => {
+                    end = Some(i + c.len_utf8());
+                }
+                // unreserved
+                '-' | '.' | '_' | '~' => {
+                    end = Some(i + c.len_utf8());
+                }
+                // sub-delims
+                '!' | '$' | '&' | '\'' | '(' | ')' | '*' | '+' | ',' | ';' | '=' => {
+                    end = Some(i + c.len_utf8());
+                }
+                ':' => {
+                    // Could be in userinfo, or we're getting a port now.
+                    if had_userinfo {
+                        // TODO: Just scan for port, then we're done.
+                    } else {
+                        // Allowed in userinfo
+                    }
+                }
+                '@' => {
+                    if had_userinfo {
+                        // We already had userinfo, can't have another `@` in a valid authority.
+                        return None;
+                    } else {
+                        // Sike! Everything before this has been userinfo, so let's reset our
+                        // opinions about all the host bits.
+                        had_userinfo = true;
+
+                        // maybe_ipv4 = true;
+                        // maybe_domain = true;
+
+                        can_be_last = false;
+                    }
+                }
+                _ => {
+                    // Anything else, this might be the end of the authority (can be empty).
+                    // Now let the rest of the code handle checking whether the end of the URL is
+                    // valid.
+                    break;
+                }
+            }
+        }
+
+        if !can_be_last {
+            return None;
+        }
+
+        end
+    }
+
+    fn find_domain_port_end(&self, s: &str) -> (Option<usize>, Option<usize>) {
+        if let (Some(domain_end), last_dot) = find_domain_end(s) {
+            // TOOD: Handle port and potential trailing dot
+            (Some(domain_end), last_dot)
+        } else {
+            (None, None)
+        }
+    }
+
     fn find_end(&self, s: &str, quote: Option<char>) -> Option<usize> {
         let mut round = 0;
         let mut square = 0;
@@ -145,7 +261,7 @@ impl UrlScanner {
         let mut single_quote = false;
 
         let mut previous_can_be_last = true;
-        let mut end = None;
+        let mut end = Some(0);
 
         for (i, c) in s.char_indices() {
             let can_be_last = match c {
@@ -181,6 +297,7 @@ impl UrlScanner {
                     }
                     true
                 }
+                // TODO: Move this to authority parser?
                 '[' => {
                     // Allowed in IPv6 address host
                     square += 1;
