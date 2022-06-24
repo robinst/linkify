@@ -38,8 +38,8 @@ fn authority() {
     assert_not_linked("file://");
     assert_not_linked("file:// ");
     assert_not_linked("\"file://\"");
-    assert_not_linked("\"file://...\", ");
 
+    assert_linked("\"file://...\", ", "\"|file://...|\", ");
     assert_linked("http://a.", "|http://a|.");
 }
 
@@ -47,8 +47,6 @@ fn authority() {
 fn local_links() {
     assert_linked("http://127.0.0.1", "|http://127.0.0.1|");
     assert_linked("http://127.0.0.1/", "|http://127.0.0.1/|");
-    assert_linked("http://::1", "|http://::1|");
-    assert_linked("http://::1/", "|http://::1/|");
 }
 
 #[test]

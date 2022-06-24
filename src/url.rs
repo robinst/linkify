@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::domains::find_domain_end;
+use crate::domains::{find_authority, find_domain_end};
 use crate::email;
 use crate::scanner::Scanner;
 
@@ -54,8 +54,12 @@ impl Scanner for UrlScanner {
             // Need at least one character after '//'
             if after_separator < s.len() {
                 if let (Some(start), quote) = self.find_scheme(&s[0..separator]) {
+                    let scheme = &s[start..separator];
                     let s = &s[after_separator..];
-                    if let Some(after_authority) = self.find_authority(s) {
+                    if let Some(after_authority) =
+                        find_authority(s, true, scheme == "https" || scheme == "http")
+                    {
+                        // find_authority_end(&s[after_authority])
                         if let Some(end) = self.find_end(&s[after_authority..], quote) {
                             if after_authority == 0 && end == 0 {
                                 return None;
@@ -154,7 +158,8 @@ impl UrlScanner {
                 '/' => return (None, None),
                 // Similar to above, if this was an email we'd have found it already.
                 '@' => return (None, None),
-                // TODO: What about ".", do we need to reject it as well?
+                // If this was a valid domain, we'd have extracted it already from the previous "."
+                '.' => return (None, None),
                 '-' => {
                     if first == None {
                         // Domain label can't end with `-`
@@ -182,69 +187,6 @@ impl UrlScanner {
         (first, quote)
     }
 
-    fn find_authority(&self, s: &str) -> Option<usize> {
-        let mut had_userinfo = false;
-        // let mut maybe_ipv4 = true;
-        // let mut maybe_domain = true;
-        let mut can_be_last = true;
-
-        let mut end = Some(0);
-        // let
-        // let mut maybe_ipv6 = true;
-
-        for (i, c) in s.char_indices() {
-            can_be_last = true;
-            match c {
-                'a'..='z' | 'A'..='Z' | '0'..='9' | '\u{80}'..=char::MAX => {
-                    end = Some(i + c.len_utf8());
-                }
-                // unreserved
-                '-' | '.' | '_' | '~' => {
-                    end = Some(i + c.len_utf8());
-                }
-                // sub-delims
-                '!' | '$' | '&' | '\'' | '(' | ')' | '*' | '+' | ',' | ';' | '=' => {
-                    end = Some(i + c.len_utf8());
-                }
-                ':' => {
-                    // Could be in userinfo, or we're getting a port now.
-                    if had_userinfo {
-                        // TODO: Just scan for port, then we're done.
-                    } else {
-                        // Allowed in userinfo
-                    }
-                }
-                '@' => {
-                    if had_userinfo {
-                        // We already had userinfo, can't have another `@` in a valid authority.
-                        return None;
-                    } else {
-                        // Sike! Everything before this has been userinfo, so let's reset our
-                        // opinions about all the host bits.
-                        had_userinfo = true;
-
-                        // maybe_ipv4 = true;
-                        // maybe_domain = true;
-
-                        can_be_last = false;
-                    }
-                }
-                _ => {
-                    // Anything else, this might be the end of the authority (can be empty).
-                    // Now let the rest of the code handle checking whether the end of the URL is
-                    // valid.
-                    break;
-                }
-            }
-        }
-
-        if !can_be_last {
-            return None;
-        }
-
-        end
-    }
-
     fn find_domain_port_end(&self, s: &str) -> (Option<usize>, Option<usize>) {
         if let (Some(domain_end), last_dot) = find_domain_end(s) {
             // TOOD: Handle port and potential trailing dot
@@ -262,6 +204,10 @@ impl UrlScanner {
 
         let mut previous_can_be_last = true;
         let mut end = Some(0);
+
+        if !s[0..].starts_with("/") {
+            return end;
+        }
 
         for (i, c) in s.char_indices() {
             let can_be_last = match c {

@@ -28,10 +28,9 @@ use linkify::LinkFinder;
 
 #[test]
 fn domain_valid() {
-    // assert_linked("9292.nl", "|9292.nl|");
-    // assert_linked("a12.b-c.com", "|a12.b-c.com|");
-    // Trailing dot allowed
-    assert_linked("https://example.com./test", "|https://example.com./test|");
+    assert_linked("9292.nl", "|9292.nl|");
+    assert_linked("a12.b-c.com", "|a12.b-c.com|");
+    assert_not_linked("v1.2.3");
 }
 
 #[test]
@@ -51,6 +50,7 @@ fn domain_with_userinfo() {
 
 #[test]
 fn domain_with_port() {
+    assert_linked("https://localhost:8080!", "|https://localhost:8080|!");
     assert_linked("https://localhost:8080/", "|https://localhost:8080/|");
 }
 
@@ -63,13 +63,30 @@ fn domain_with_userinfo_and_port() {
 }
 
 #[test]
-fn domain_ipv6() {
-    assert_linked("https://[dontcare]/", "|https://[dontcare]/|");
+fn domain_ipv4() {
+    assert_linked("https://127.0.0.1/", "|https://127.0.0.1/|");
 }
 
 #[test]
-fn domain_ipv4() {
-    assert_linked("https://127.0.0.1/", "|https://127.0.0.1/|");
+fn domain_trailing_dot() {
+    assert_linked("https://example.com./test", "|https://example.com./test|");
+    assert_linked(
+        "https://example.com.:8080/test",
+        "|https://example.com.:8080/test|",
+    );
+}
+
+#[test]
+fn domain_delimited() {
+    // Delimiter at end of domain should *not* be included
+    assert_linked("https://example.org'", "|https://example.org|'");
+    // Even if after delimiter it starts to look like a domain again
+    assert_linked("https://example.org'a", "|https://example.org|'a");
+    // Unless it's a userinfo of course (sike!)
+    assert_linked(
+        "https://example.org'a@example.com",
+        "|https://example.org'a@example.com|",
+    );
 }
 
 #[test]
@@ -117,6 +134,15 @@ fn no_authority_part() {
 fn authority_thats_not_domain() {
     // Not valid according to DNS but we should allow it for other schemes (or all, not sure).
     assert_linked("facetime://+19995551234", "|facetime://+19995551234|");
+}
+
+#[test]
+fn authority_without_slash_should_stop_at_delimiters() {
+    // What's going on here? For schemes where we don't enforce domainyness,
+    // we want to stop at delimiter characters. Note that `!` is valid in authorities.
+    assert_linked("test://123'456!!!", "|test://123'456|!!!");
+    // ... unless there is a "/" terminating the authority.
+    assert_linked("test://123'456!!!/abc", "|test://123'456!!!/abc|");
 }
 
 #[test]
