@@ -48,8 +48,9 @@ impl Scanner for UrlScanner {
         if let (Some(start), quote) = find_scheme_start(&s[0..separator]) {
             let scheme = &s[start..separator];
             let s = &s[after_separator..];
-            // TODO more, move to config?
-            let require_host = scheme == "https" || scheme == "http";
+
+            let require_host = scheme_requires_host(scheme);
+
             if let (Some(after_authority), _) = find_authority_end(s, true, require_host, true) {
                 if let Some(end) = find_url_end(&s[after_authority..], quote) {
                     if after_authority == 0 && end == 0 {
@@ -85,6 +86,7 @@ impl Scanner for DomainScanner {
 
         if let (Some(start), quote) = find_domain_start(&s[0..separator]) {
             let s = &s[start..];
+
             if let (Some(domain_end), Some(_)) = find_authority_end(s, false, true, true) {
                 if let Some(end) = find_url_end(&s[domain_end..], quote) {
                     let range = Range {
@@ -133,6 +135,17 @@ fn find_scheme_start(s: &str) -> (Option<usize>, Option<char>) {
         }
     }
     (first, quote)
+}
+
+/// Whether a scheme requires that authority looks like a host name (domain or IP address) or not
+/// (can contain reg-name with arbitrary allowed characters).
+///
+/// We could make this configurable, but let's keep it simple until someone asks (hi!).
+fn scheme_requires_host(scheme: &str) -> bool {
+    match scheme {
+        "https" | "http" | "file" | "ftp" | "ssh" => true,
+        _ => false,
+    }
 }
 
 /// Find the start of a plain domain URL (no scheme), e.g. from `blog.`, start at `g` and end at `b`.

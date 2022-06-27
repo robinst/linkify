@@ -164,7 +164,7 @@ pub(crate) fn find_authority_end(
     if require_host {
         if maybe_host {
             // Can't have just a number without dots as the authority
-            if all_numeric && last_dot.is_none() {
+            if all_numeric && last_dot.is_none() && end != Some(0) {
                 return (None, None);
             }
 

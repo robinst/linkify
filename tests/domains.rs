@@ -127,6 +127,7 @@ fn domain_cant_end_numeric() {
 fn no_authority_part() {
     assert_linked("file:///", "|file:///|");
     assert_linked("file:///home/foo", "|file:///home/foo|");
+    assert_linked("file://localhost/home/foo", "|file://localhost/home/foo|");
 }
 
 #[test]
