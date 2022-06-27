@@ -116,7 +116,7 @@
 //! [RFC 6531]: https://datatracker.ietf.org/doc/html/rfc6531
 
 #![doc(html_root_url = "https://docs.rs/linkify/0.8.1")]
-// #![deny(warnings)]
+#![deny(warnings)]
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 
