@@ -87,7 +87,7 @@ impl Scanner for UrlScanner {
                 // check here.
 
                 let s = &s[start..];
-                if let (Some(domain_end), Some(_)) = self.find_domain_port_end(s) {
+                if let (Some(domain_end), Some(_)) = find_authority(s, false, true, true) {
                     if let Some(end) = self.find_end(&s[domain_end..], quote) {
                         let range = Range {
                             start,
@@ -189,15 +189,6 @@ impl UrlScanner {
         (first, quote)
     }
 
-    fn find_domain_port_end(&self, s: &str) -> (Option<usize>, Option<usize>) {
-        if let (Some(domain_end), last_dot) = find_authority(s, false, true, true) {
-            // TOOD: Handle port and potential trailing dot
-            (Some(domain_end), last_dot)
-        } else {
-            (None, None)
-        }
-    }
-
     fn find_end(&self, s: &str, quote: Option<char>) -> Option<usize> {
         let mut round = 0;
         let mut square = 0;
@@ -245,14 +236,11 @@ impl UrlScanner {
                     }
                     true
                 }
-                // TODO: Move this to authority parser?
                 '[' => {
-                    // Allowed in IPv6 address host
                     square += 1;
                     false
                 }
                 ']' => {
-                    // Allowed in IPv6 address host
                     square -= 1;
                     if square < 0 {
                         // More closing than opening brackets, stop now

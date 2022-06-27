@@ -1,26 +1,3 @@
-//! This is called domains for familiarity but it's about the authority part of URLs as defined in
-//! https://datatracker.ietf.org/doc/html/rfc3986#section-3.2
-//!
-//! ```
-//! authority   = [ userinfo "@" ] host [ ":" port ]
-//!
-//!
-//! userinfo    = *( unreserved / pct-encoded / sub-delims / ":" )
-//!
-//! host        = IP-literal / IPv4address / reg-name
-//!
-//! IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
-//!
-//! IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
-//!
-//! reg-name    = *( unreserved / pct-encoded / sub-delims )
-//!
-//!
-//! unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-//!
-//! sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
-//! ```
-
 mod common;
 
 use crate::common::assert_linked_with;
