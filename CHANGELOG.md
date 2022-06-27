@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [Unreleased]
+### Changed
+- More strict parsing of hostname (authority) part of URLs. Applies to
+  emails, plain domains URLs (e.g. `example.com/foo`) and URLs with
+  schemes where a host is expected (e.g. `https`).
+
+  This fixes a few problems that have been reported over time, namely:
+
+  - `https://www.example..com` is no longer parsed as an URL (#41)
+  - `foo@v1.1.1` is no longer parsed as an email address (#29)
+  - `https://*.example.org` is no longer parsed as an URL (#38)
+
+  It's a tricky change and hopefully this solves some problems while
+  not introducing too many new ones. If anything unexpectedly changed
+  for you, please let us know!
+
 ## [0.8.1] - 2022-04-14
 ### Changed
 - Skip parsing very short strings for URLs as a performance optimization
@@ -76,6 +92,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[Unreleased]: https://github.com/robinst/linkify/compare/0.8.1...HEAD
 [0.8.1]: https://github.com/robinst/linkify/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/robinst/linkify/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/robinst/linkify/compare/0.6.0...0.7.0
