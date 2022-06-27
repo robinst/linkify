@@ -1,3 +1,4 @@
+use std::char;
 use std::ops::Range;
 
 use crate::domains::find_authority_end;

@@ -23,6 +23,8 @@
 //! sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 //! ```
 
+use std::char;
+
 pub(crate) fn find_authority_end(
     s: &str,
     mut userinfo_allowed: bool,
