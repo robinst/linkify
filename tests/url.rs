@@ -429,6 +429,7 @@ fn domain_tld_without_protocol_must_be_long() {
 #[test]
 fn skip_emails_without_protocol() {
     assert_not_linked_without_protocol("foo.bar@example.org");
+    assert_not_linked_without_protocol("example.com@example.com");
 }
 
 #[test]

@@ -112,10 +112,10 @@ fn domain_labels_cant_end_with_hyphen() {
 #[test]
 fn domain_cant_contain_at() {
     // Looks like an email but was recognized as a schemeless link before.
-    // assert_not_linked("example.com@about");
+    assert_not_linked("example.com@about");
     // As part of path it's ok.
     assert_linked("example.com/@about", "|example.com/@about|");
-    // assert_linked("https://example.com/@about", "|https://example.com/@about|");
+    assert_linked("https://example.com/@about", "|https://example.com/@about|");
 }
 
 #[test]

@@ -2,7 +2,6 @@ use std::char;
 use std::ops::Range;
 
 use crate::domains::find_authority_end;
-use crate::email;
 use crate::scanner::Scanner;
 
 /// Minimum valid URL length
@@ -75,13 +74,6 @@ impl Scanner for DomainScanner {
     fn scan(&self, s: &str, separator: usize) -> Option<Range<usize>> {
         // There must be something before separator for domain, and a minimum number of characters
         if separator == 0 || s.len() < MIN_URL_LENGTH {
-            return None;
-        }
-
-        let after_separator = separator + 1;
-
-        // If this is an email address, don't scan it as URL
-        if email::is_mail(&s[after_separator..]) {
             return None;
         }
 
