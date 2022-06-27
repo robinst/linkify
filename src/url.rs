@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::domains::{find_authority, find_domain_end};
+use crate::domains::find_authority;
 use crate::email;
 use crate::scanner::Scanner;
 
@@ -56,10 +56,10 @@ impl Scanner for UrlScanner {
                 if let (Some(start), quote) = self.find_scheme(&s[0..separator]) {
                     let scheme = &s[start..separator];
                     let s = &s[after_separator..];
-                    if let Some(after_authority) =
-                        find_authority(s, true, scheme == "https" || scheme == "http")
+                    // TODO more, move to config?
+                    let require_host = scheme == "https" || scheme == "http";
+                    if let (Some(after_authority), _) = find_authority(s, true, require_host, true)
                     {
-                        // find_authority_end(&s[after_authority])
                         if let Some(end) = self.find_end(&s[after_authority..], quote) {
                             if after_authority == 0 && end == 0 {
                                 return None;
@@ -119,6 +119,7 @@ impl UrlScanner {
                     // and stop once we encounter one of those quotes.
                     // https://github.com/robinst/linkify/issues/20
                     quote = Some(c);
+                    break;
                 }
                 _ => break,
             }
@@ -172,6 +173,7 @@ impl UrlScanner {
                     // Check if there's a quote before, and stop once we encounter one of those quotes,
                     // e.g. with `"www.example.com"`
                     quote = Some(c);
+                    break;
                 }
                 _ => break,
             }
@@ -188,7 +190,7 @@ impl UrlScanner {
     }
 
     fn find_domain_port_end(&self, s: &str) -> (Option<usize>, Option<usize>) {
-        if let (Some(domain_end), last_dot) = find_domain_end(s) {
+        if let (Some(domain_end), last_dot) = find_authority(s, false, true, true) {
             // TOOD: Handle port and potential trailing dot
             (Some(domain_end), last_dot)
         } else {

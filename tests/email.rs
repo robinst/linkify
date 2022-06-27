@@ -97,6 +97,14 @@ fn multiple() {
 }
 
 #[test]
+fn multiple_delimited_hard() {
+    assert_linked(
+        "a@xy.com;b@xy.com,c@xy.com",
+        "|a@xy.com|;|b@xy.com|,|c@xy.com|",
+    );
+}
+
+#[test]
 fn international() {
     assert_linked("üñîçøðé@example.com", "|üñîçøðé@example.com|");
     assert_linked("üñîçøðé@üñîçøðé.com", "|üñîçøðé@üñîçøðé.com|");
@@ -112,7 +120,7 @@ fn trigger_overlap() {
 
 #[test]
 fn fuzz() {
-    assert_linked("a@a.ϸ", "|a@a.ϸ|");
+    assert_linked("a@a.xyϸ", "|a@a.xyϸ|");
 }
 
 fn assert_not_linked(s: &str) {

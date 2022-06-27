@@ -1,120 +1,11 @@
 //! Domain name related scanning, used by both email and plain domain URL scanners.
 
-pub(crate) fn find_domain_end(s: &str) -> (Option<usize>, Option<usize>) {
-    let mut end = None;
-    let mut maybe_last_dot = None;
-    let mut last_dot = None;
-    let mut dot_allowed = false;
-    let mut hyphen_allowed = false;
-    let mut all_numeric = true;
-
-    for (i, c) in s.char_indices() {
-        let can_be_last = match c {
-            'a'..='z' | 'A'..='Z' | '\u{80}'..=char::MAX => {
-                // Can start or end a domain label, but not numeric.
-                dot_allowed = true;
-                hyphen_allowed = true;
-                last_dot = maybe_last_dot;
-                all_numeric = false;
-
-                true
-            }
-            '0'..='9' => {
-                // Same as above
-                dot_allowed = true;
-                hyphen_allowed = true;
-                last_dot = maybe_last_dot;
-
-                true
-            }
-            '-' => {
-                // Hyphen can't be at start of a label, e.g. `-b` in `a.-b.com`
-                if !hyphen_allowed {
-                    return (None, None);
-                }
-                // Hyphen can't be at end of a label, e.g. `b-` in `a.b-.com`
-                dot_allowed = false;
-                false
-            }
-            '.' => {
-                if !dot_allowed {
-                    // Label can't be empty, e.g. `.example.com` or `a..com`
-                    return (None, None);
-                }
-                dot_allowed = false;
-                hyphen_allowed = false;
-                maybe_last_dot = Some(i);
-                false
-            }
-            _ => {
-                break;
-            }
-        };
-
-        if can_be_last {
-            end = Some(i + c.len_utf8());
-        }
-    }
-
-    if all_numeric && last_dot.is_none() {
-        return (None, None);
-    }
-
-    if !all_numeric {
-        if let Some(last_dot) = last_dot {
-            if !valid_tld(&s[last_dot + 1..]) {
-                return (None, None);
-            }
-        }
-    }
-
-    (end, last_dot)
-}
-
-pub(crate) fn find_authority_end(s: &str) -> Option<usize> {
-    let mut port = false;
-    let mut end = Some(0);
-
-    for (i, c) in s.char_indices() {
-        let can_be_last = match c {
-            '.' => {
-                // . at end of domain allowed, but only if we have a / or port and slash after
-                if i != 0 {
-                    break;
-                }
-                false
-            }
-            ':' => {
-                if port {
-                    break;
-                }
-                port = true;
-                false
-            }
-            '0'..='9' => {
-                if !port {
-                    break;
-                }
-                true
-            }
-            _ => {
-                break;
-            }
-        };
-
-        if can_be_last {
-            end = Some(i + c.len_utf8());
-        }
-    }
-
-    end
-}
-
 pub(crate) fn find_authority(
     s: &str,
     mut userinfo_allowed: bool,
     require_host: bool,
-) -> Option<usize> {
+    port_allowed: bool,
+) -> (Option<usize>, Option<usize>) {
     let mut end = Some(0);
 
     let mut maybe_last_dot = None;
@@ -129,28 +20,28 @@ pub(crate) fn find_authority(
         let can_be_last = match c {
             // ALPHA
             'a'..='z' | 'A'..='Z' | '\u{80}'..=char::MAX => {
-                // Can start or end a domain label, but not numeric.
+                // Can start or end a domain label, but not numeric
                 dot_allowed = true;
                 hyphen_allowed = true;
                 last_dot = maybe_last_dot;
                 all_numeric = false;
 
-                // if host_ended {
-                //     maybe_host = false;
-                // }
+                if host_ended {
+                    maybe_host = false;
+                }
 
                 !require_host || !host_ended
             }
             // DIGIT
             '0'..='9' => {
-                // Same as above
+                // Same as above, except numeric
                 dot_allowed = true;
                 hyphen_allowed = true;
                 last_dot = maybe_last_dot;
 
-                // if host_ended {
-                //     maybe_host = false;
-                // }
+                if host_ended {
+                    maybe_host = false;
+                }
 
                 !require_host || !host_ended
             }
@@ -162,50 +53,54 @@ pub(crate) fn find_authority(
                 }
                 // Hyphen can't be at end of a label, e.g. `b-` in `a.b-.com`
                 dot_allowed = false;
+                all_numeric = false;
 
                 !require_host
             }
             '.' => {
                 if !dot_allowed {
                     // Label can't be empty, e.g. `.example.com` or `a..com`
-                    maybe_host = false;
+                    host_ended = true;
                 }
                 dot_allowed = false;
                 hyphen_allowed = false;
                 maybe_last_dot = Some(i);
 
-                !require_host
+                false
             }
             '_' | '~' => {
-                // Hostnames can't contain these
+                // Hostnames can't contain these and we don't want to treat them as delimiters.
                 maybe_host = false;
-                // TODO: use host_ended or something, so we can distinguish between invalid host or host with trailing stuff?
 
                 false
             }
             // sub-delims
             '!' | '$' | '&' | '\'' | '(' | ')' | '*' | '+' | ',' | ';' | '=' => {
-                // TODO: What about something like https://a.com,https://b.com, should we try to support that?
-                // Can't be in hostnames
+                // Can't be in hostnames, but we treat them as delimiters
                 host_ended = true;
+
+                if !userinfo_allowed && require_host {
+                    // We don't have to look further
+                    break;
+                }
 
                 false
             }
             ':' => {
                 // Could be in userinfo, or we're getting a port now.
-                if !userinfo_allowed {
-                    // TODO: Just scan for port, then we're done.
-                    //  but not for emails, hmmmm... Maybe do that outside?
-                    // break;
-                    // host_ended = true;
+                if !userinfo_allowed && !port_allowed {
+                    break;
                 }
-                // Not sure
+
+                // Don't advance the last dot when we get to port numbers
+                maybe_last_dot = last_dot;
+
                 false
             }
             '@' => {
                 if !userinfo_allowed {
                     // We already had userinfo, can't have another `@` in a valid authority.
-                    return None;
+                    return (None, None);
                 }
 
                 // Sike! Everything before this has been userinfo, so let's reset our
@@ -245,26 +140,28 @@ pub(crate) fn find_authority(
 
     if require_host {
         if maybe_host {
-            // TODO: more checking?
-
+            // Can't have just a number without dots as the authority
             if all_numeric && last_dot.is_none() {
-                return None;
+                return (None, None);
             }
 
+            // If we have something that is not just numeric (not an IP address),
+            // check that the TLD looks reasonable. This is to avoid linking things like
+            // `abc@v1.1`.
             if !all_numeric {
                 if let Some(last_dot) = last_dot {
                     if !valid_tld(&s[last_dot + 1..]) {
-                        return None;
+                        return (None, None);
                     }
                 }
             }
 
-            return end;
+            return (end, last_dot);
         } else {
-            return None;
+            return (None, None);
         }
     } else {
-        return end;
+        return (end, last_dot);
     }
 }
 

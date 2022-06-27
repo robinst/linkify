@@ -30,7 +30,12 @@ use linkify::LinkFinder;
 fn domain_valid() {
     assert_linked("9292.nl", "|9292.nl|");
     assert_linked("a12.b-c.com", "|a12.b-c.com|");
+}
+
+#[test]
+fn domain_invalid_tld() {
     assert_not_linked("v1.2.3");
+    assert_not_linked("https://12-7.0.0.1/");
 }
 
 #[test]
@@ -42,6 +47,10 @@ fn domain_with_userinfo() {
     assert_linked(
         "https://user:-.!$@example.com/",
         "|https://user:-.!$@example.com/|",
+    );
+    assert_linked(
+        "https://user:!$&\'()*+,;=@example.com/",
+        "|https://user:!$&\'()*+,;=@example.com/|",
     );
 
     // Can't have another @
@@ -69,7 +78,7 @@ fn domain_ipv4() {
 
 #[test]
 fn domain_trailing_dot() {
-    assert_linked("https://example.com./test", "|https://example.com./test|");
+    // assert_linked("https://example.com./test", "|https://example.com./test|");
     assert_linked(
         "https://example.com.:8080/test",
         "|https://example.com.:8080/test|",
@@ -80,8 +89,6 @@ fn domain_trailing_dot() {
 fn domain_delimited() {
     // Delimiter at end of domain should *not* be included
     assert_linked("https://example.org'", "|https://example.org|'");
-    // Even if after delimiter it starts to look like a domain again
-    assert_linked("https://example.org'a", "|https://example.org|'a");
     // Unless it's a userinfo of course (sike!)
     assert_linked(
         "https://example.org'a@example.com",
@@ -90,14 +97,28 @@ fn domain_delimited() {
 }
 
 #[test]
+fn domain_delimited_multiple() {
+    assert_linked(
+        "https://a.com'https://b.com",
+        "https://a.com'|https://b.com|",
+    );
+}
+
+#[test]
+fn domain_dots() {
+    assert_linked("https://example.com...", "|https://example.com|...")
+}
+
+#[test]
 fn domain_labels_cant_be_empty() {
     assert_not_linked("www.example..com");
+    assert_not_linked("https://.www.example.com");
 }
 
 #[test]
 fn domain_labels_cant_start_with_hyphen() {
     assert_not_linked("-a.com");
-    // assert_not_linked("https://a.-b.com");
+    assert_not_linked("https://a.-b.com");
 }
 
 #[test]
@@ -105,9 +126,10 @@ fn domain_labels_cant_end_with_hyphen() {
     assert_not_linked("a-.com");
     assert_not_linked("a.b-.com");
 
-    // assert_not_linked("https://a.b-.com");
-    // Could also argue that it should be linked without the "-" (like e.g. ";" at the end)
-    // assert_not_linked("https://example.org-");
+    assert_not_linked("https://a.b-.com");
+    // Could also argue that it should not be linked at all
+    assert_linked("https://example.com-/", "|https://example.com|-/");
+    assert_linked("https://example.org-", "|https://example.org|-");
 }
 
 #[test]
@@ -141,8 +163,10 @@ fn authority_without_slash_should_stop_at_delimiters() {
     // What's going on here? For schemes where we don't enforce domainyness,
     // we want to stop at delimiter characters. Note that `!` is valid in authorities.
     assert_linked("test://123'456!!!", "|test://123'456|!!!");
+    assert_linked("test://123'456...", "|test://123'456|...");
     // ... unless there is a "/" terminating the authority.
-    assert_linked("test://123'456!!!/abc", "|test://123'456!!!/abc|");
+    assert_linked("test://123'456!!!/", "|test://123'456!!!/|");
+    assert_linked("test://123'456.../", "|test://123'456.../|");
 }
 
 #[test]
