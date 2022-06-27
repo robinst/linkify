@@ -23,7 +23,7 @@
 //! sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
 //! ```
 
-pub(crate) fn find_authority(
+pub(crate) fn find_authority_end(
     s: &str,
     mut userinfo_allowed: bool,
     require_host: bool,

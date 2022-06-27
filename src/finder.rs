@@ -5,7 +5,7 @@ use memchr::{memchr, memchr2, memchr3};
 
 use crate::email::EmailScanner;
 use crate::scanner::Scanner;
-use crate::url::UrlScanner;
+use crate::url::{DomainScanner, UrlScanner};
 
 /// A link found in the input text.
 #[derive(Debug)]
@@ -112,6 +112,7 @@ pub struct Links<'t> {
     trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>>,
     email_scanner: EmailScanner,
     url_scanner: UrlScanner,
+    domain_scanner: DomainScanner,
 }
 
 /// Iterator over spans.
@@ -213,6 +214,7 @@ impl<'t> Links<'t> {
         email_domain_must_have_dot: bool,
     ) -> Links<'t> {
         let url_scanner = UrlScanner;
+        let domain_scanner = DomainScanner;
         let email_scanner = EmailScanner {
             domain_must_have_dot: email_domain_must_have_dot,
         };
@@ -232,6 +234,7 @@ impl<'t> Links<'t> {
             trigger_finder,
             email_scanner,
             url_scanner,
+            domain_scanner,
         }
     }
 }
@@ -246,7 +249,8 @@ impl<'t> Iterator for Links<'t> {
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
             let trigger = slice.as_bytes()[find_from + i];
             let (scanner, kind): (&dyn Scanner, LinkKind) = match trigger {
-                b':' | b'.' => (&self.url_scanner, LinkKind::Url),
+                b':' => (&self.url_scanner, LinkKind::Url),
+                b'.' => (&self.domain_scanner, LinkKind::Url),
                 b'@' => (&self.email_scanner, LinkKind::Email),
                 _ => unreachable!(),
             };
