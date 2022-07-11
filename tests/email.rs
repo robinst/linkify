@@ -81,7 +81,7 @@ fn domain_must_have_dot_false() {
     assert_linked_with(&finder, "a@b", "|a@b|");
     assert_linked_with(&finder, "a@b.", "|a@b|.");
 
-    assert_linked_with(&finder, "a@b-.", "|a@b|-.");
+    assert_linked_with(&finder, "a@b.", "|a@b|.");
 }
 
 #[test]
@@ -93,6 +93,14 @@ fn multiple() {
     assert_linked(
         "a@example.com @ b@example.com",
         "|a@example.com| @ |b@example.com|",
+    );
+}
+
+#[test]
+fn multiple_delimited_hard() {
+    assert_linked(
+        "a@xy.com;b@xy.com,c@xy.com",
+        "|a@xy.com|;|b@xy.com|,|c@xy.com|",
     );
 }
 
@@ -112,7 +120,7 @@ fn trigger_overlap() {
 
 #[test]
 fn fuzz() {
-    assert_linked("a@a.ϸ", "|a@a.ϸ|");
+    assert_linked("a@a.xyϸ", "|a@a.xyϸ|");
 }
 
 fn assert_not_linked(s: &str) {

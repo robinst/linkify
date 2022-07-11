@@ -35,11 +35,10 @@ fn schemes() {
 #[test]
 fn authority() {
     assert_not_linked("ab://");
-    assert_not_linked("http://");
-    assert_not_linked("http:// ");
-    assert_not_linked("\"http://\"");
-    assert_not_linked("\"http://...\", ");
-
+    assert_not_linked("file://");
+    assert_not_linked("file:// ");
+    assert_not_linked("\"file://\"");
+    assert_not_linked("\"file://...\", ");
     assert_linked("http://a.", "|http://a|.");
 }
 
@@ -47,8 +46,6 @@ fn authority() {
 fn local_links() {
     assert_linked("http://127.0.0.1", "|http://127.0.0.1|");
     assert_linked("http://127.0.0.1/", "|http://127.0.0.1/|");
-    assert_linked("http://::1", "|http://::1|");
-    assert_linked("http://::1/", "|http://::1/|");
 }
 
 #[test]
@@ -417,7 +414,7 @@ fn international_without_protocol() {
 fn domain_tld_without_protocol_must_be_long() {
     assert_urls_without_protocol("example.", "example.");
     assert_urls_without_protocol("example./", "example./");
-    assert_urls_without_protocol("foo.example.", "foo.example.");
+    assert_urls_without_protocol("foo.com.", "|foo.com|.");
     assert_urls_without_protocol("example.c", "example.c");
     assert_urls_without_protocol("example.co", "|example.co|");
     assert_urls_without_protocol("example.com", "|example.com|");
@@ -426,11 +423,13 @@ fn domain_tld_without_protocol_must_be_long() {
     assert_urls_without_protocol("exampl.e.co", "|exampl.e.co|");
     assert_urls_without_protocol("e.xample.c", "e.xample.c");
     assert_urls_without_protocol("e.xample.co", "|e.xample.co|");
+    assert_urls_without_protocol("v1.1.1", "v1.1.1");
 }
 
 #[test]
 fn skip_emails_without_protocol() {
     assert_not_linked_without_protocol("foo.bar@example.org");
+    assert_not_linked_without_protocol("example.com@example.com");
 }
 
 #[test]
@@ -440,6 +439,30 @@ fn avoid_multiple_matches_without_protocol() {
     let links: Vec<_> = finder.links("http://example.com").collect();
     assert_eq!(links.len(), 1);
     assert_eq!(links[0].as_str(), "http://example.com");
+}
+
+#[test]
+fn without_protocol_and_email() {
+    let mut finder = LinkFinder::new();
+    finder.url_must_have_scheme(false);
+
+    assert_linked_with(
+        &finder,
+        "Look, no scheme: example.org/foo email@foo.com",
+        "Look, no scheme: |example.org/foo| |email@foo.com|",
+    );
+
+    assert_linked_with(
+        &finder,
+        "Web:
+www.foobar.co
+E-Mail:
+      bar@foobar.co (bla bla bla)",
+        "Web:
+|www.foobar.co|
+E-Mail:
+      |bar@foobar.co| (bla bla bla)",
+    );
 }
 
 #[test]

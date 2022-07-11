@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use crate::domains::find_authority_end;
 use crate::scanner::Scanner;
 
 /// Scan for email address starting from the trigger character "@".
@@ -40,6 +41,9 @@ impl EmailScanner {
                     break;
                 }
                 atom_boundary = true;
+            } else if c == '@' {
+                // In `@me@a.com`, we don't want to extract `me@a.com`.
+                return None;
             } else {
                 break;
             }
@@ -49,40 +53,8 @@ impl EmailScanner {
 
     // See "Domain" in RFC 5321, plus extension of "sub-domain" in RFC 6531
     fn find_end(&self, s: &str) -> Option<usize> {
-        let mut first_in_sub_domain = true;
-        let mut can_end_sub_domain = false;
-        let mut first_dot = None;
-        let mut end = None;
-
-        for (i, c) in s.char_indices() {
-            if first_in_sub_domain {
-                if Self::sub_domain_allowed(c) {
-                    end = Some(i + c.len_utf8());
-                    first_in_sub_domain = false;
-                    can_end_sub_domain = true;
-                } else {
-                    break;
-                }
-            } else if c == '.' {
-                if !can_end_sub_domain {
-                    break;
-                }
-                first_in_sub_domain = true;
-                if first_dot.is_none() {
-                    first_dot = Some(i);
-                }
-            } else if c == '-' {
-                can_end_sub_domain = false;
-            } else if Self::sub_domain_allowed(c) {
-                end = Some(i + c.len_utf8());
-                can_end_sub_domain = true;
-            } else {
-                break;
-            }
-        }
-
-        if let Some(end) = end {
-            if !self.domain_must_have_dot || first_dot.map(|d| d < end).unwrap_or(false) {
+        if let (Some(end), last_dot) = find_authority_end(s, false, true, false) {
+            if !self.domain_must_have_dot || last_dot.is_some() {
                 Some(end)
             } else {
                 None
@@ -120,27 +92,4 @@ impl EmailScanner {
             _ => c >= '\u{80}',
         }
     }
-
-    // See "sub-domain" in RFC 5321. Extension in RFC 6531 is simplified,
-    // this can also match invalid domains.
-    fn sub_domain_allowed(c: char) -> bool {
-        match c {
-            'a'..='z' | 'A'..='Z' | '0'..='9' => true,
-            _ => c >= '\u{80}',
-        }
-    }
-}
-
-/// Helper function to check if given string is considered an email address.
-#[inline]
-pub(crate) fn is_mail(input: &str) -> bool {
-    input
-        .char_indices()
-        .filter(|(_, c)| *c == '@')
-        .any(|(i, _)| {
-            let scanner = EmailScanner {
-                domain_must_have_dot: true,
-            };
-            scanner.scan(input, i).is_some()
-        })
 }
