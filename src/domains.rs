@@ -21,6 +21,8 @@
 //! unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
 //!
 //! sub-delims  = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+//!
+//! pct-encoded = "%" HEXDIG HEXDIG
 //! ```
 
 use std::char;
