@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
-## [Unreleased]
+## [0.9.0] - 2022-07-11
 ### Changed
 - More strict parsing of hostname (authority) part of URLs. Applies to
   emails, plain domains URLs (e.g. `example.com/foo`) and URLs with
@@ -92,7 +92,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
-[Unreleased]: https://github.com/robinst/linkify/compare/0.8.1...HEAD
+[0.9.0]: https://github.com/robinst/linkify/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/robinst/linkify/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/robinst/linkify/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/robinst/linkify/compare/0.6.0...0.7.0
