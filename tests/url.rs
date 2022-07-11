@@ -442,6 +442,30 @@ fn avoid_multiple_matches_without_protocol() {
 }
 
 #[test]
+fn without_protocol_and_email() {
+    let mut finder = LinkFinder::new();
+    finder.url_must_have_scheme(false);
+
+    assert_linked_with(
+        &finder,
+        "Look, no scheme: example.org/foo email@foo.com",
+        "Look, no scheme: |example.org/foo| |email@foo.com|",
+    );
+
+    assert_linked_with(
+        &finder,
+        "Web:
+www.foobar.co
+E-Mail:
+      bar@foobar.co (bla bla bla)",
+        "Web:
+|www.foobar.co|
+E-Mail:
+      |bar@foobar.co| (bla bla bla)",
+    );
+}
+
+#[test]
 fn fuzz() {
     assert_not_linked("ab:/ϸ");
 }
