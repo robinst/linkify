@@ -11,14 +11,13 @@ documentation = "https://docs.rs/linkify"
 description = "Finds URLs and email addresses in plain text. Takes care to get the boundaries right with surrounding punctuation like parentheses."
 categories = ["text-processing"]
 keywords = ["web", "text", "url", "links"]
-exclude = ["/.github"]
+exclude = ["/.github", "/Cargo.lock.msrv"]
 
 [dependencies]
 memchr = "2.0.1"
 
 [dev-dependencies]
 criterion = "0.3"
-plotters-backend = "= 0.3.2" # 0.3.4 requires later Rust
 doc-comment = "0.3.3"
 
 
