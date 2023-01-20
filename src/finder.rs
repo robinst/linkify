@@ -102,6 +102,7 @@ pub struct LinkFinder {
     email_domain_must_have_dot: bool,
     url: bool,
     url_must_have_scheme: bool,
+    url_can_be_iri: bool,
 }
 
 /// Iterator for finding links.
@@ -133,6 +134,7 @@ impl LinkFinder {
             email_domain_must_have_dot: true,
             url: true,
             url_must_have_scheme: true,
+            url_can_be_iri: true
         }
     }
 
@@ -151,6 +153,13 @@ impl LinkFinder {
     /// may lead to finding a lot of false positive URLs.
     pub fn url_must_have_scheme(&mut self, url_must_have_scheme: bool) -> &mut LinkFinder {
         self.url_must_have_scheme = url_must_have_scheme;
+        self
+    }
+
+    /// Sets whether URLs can be IRI according to RFC-3987.
+    /// The default is `true`
+    pub fn url_can_be_iri(&mut self, url_can_be_iri: bool) -> &mut LinkFinder {
+        self.url_can_be_iri = url_can_be_iri;
         self
     }
 
@@ -178,6 +187,7 @@ impl LinkFinder {
             self.url_must_have_scheme,
             self.email,
             self.email_domain_must_have_dot,
+            self.url_can_be_iri
         )
     }
 
@@ -212,9 +222,14 @@ impl<'t> Links<'t> {
         url_must_have_scheme: bool,
         email: bool,
         email_domain_must_have_dot: bool,
+        iri_parsing_enabled: bool,
     ) -> Links<'t> {
-        let url_scanner = UrlScanner;
-        let domain_scanner = DomainScanner;
+        let url_scanner = UrlScanner {
+            iri_parsing_enabled
+        };
+        let domain_scanner = DomainScanner {
+            iri_parsing_enabled
+        };
         let email_scanner = EmailScanner {
             domain_must_have_dot: email_domain_must_have_dot,
         };

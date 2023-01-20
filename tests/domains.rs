@@ -1,7 +1,7 @@
 mod common;
 
 use crate::common::assert_linked_with;
-use linkify::LinkFinder;
+use linkify::{LinkFinder, LinkKind};
 
 #[test]
 fn domain_valid() {
@@ -153,6 +153,26 @@ fn without_scheme_should_stop() {
     // This is not a valid scheme. Even the schemeless parser should not accept it, nor extract
     // only example.com out of it.
     assert_not_linked("1abc://example.com");
+}
+
+#[test]
+pub fn test_international_not_allowed() {
+    let mut finder = LinkFinder::new();
+    finder.url_must_have_scheme(false);
+    finder.url_can_be_iri(false);
+    let link = finder.links("\u{A1}\u{A2}example.com").next().unwrap();
+    assert_eq!(link.kind(), &LinkKind::Url);
+    assert_eq!(link.as_str(), "example.com");
+}
+
+#[test]
+pub fn test_international_allowed() {
+    let mut finder = LinkFinder::new();
+    finder.url_must_have_scheme(false);
+    finder.url_can_be_iri(true);
+    let link = finder.links("\u{A1}\u{A2}example.com").next().unwrap();
+    assert_eq!(link.kind(), &LinkKind::Url);
+    assert_eq!(link.as_str(), "\u{A1}\u{A2}example.com");
 }
 
 fn assert_linked(input: &str, expected: &str) {
