@@ -39,6 +39,8 @@ fn authority() {
     assert_not_linked("file:// ");
     assert_not_linked("\"file://\"");
     assert_not_linked("\"file://...\", ");
+    assert_linked("file://somefile", "|file://somefile|");
+    assert_linked("file://../relative", "|file://../relative|");
     assert_linked("http://a.", "|http://a|.");
 }
 

@@ -136,7 +136,7 @@ fn find_scheme_start(s: &str) -> (Option<usize>, Option<char>) {
 /// We could make this configurable, but let's keep it simple until someone asks (hi!).
 fn scheme_requires_host(scheme: &str) -> bool {
     match scheme {
-        "https" | "http" | "file" | "ftp" | "ssh" => true,
+        "https" | "http" | "ftp" | "ssh" => true,
         _ => false,
     }
 }
