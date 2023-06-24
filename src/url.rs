@@ -18,10 +18,14 @@ const QUOTES: &[char] = &['\'', '\"'];
 /// Scan for URLs starting from the trigger character ":" (requires "://").
 ///
 /// Based on RFC 3986.
-pub struct UrlScanner;
+pub struct UrlScanner {
+    pub iri_parsing_enabled: bool,
+}
 
 /// Scan for plain domains (without scheme) such as `test.com` or `test.com/hi-there`.
-pub struct DomainScanner;
+pub struct DomainScanner {
+    pub iri_parsing_enabled: bool,
+}
 
 impl Scanner for UrlScanner {
     /// Scan for an URL at the given separator index in the string.
@@ -51,8 +55,12 @@ impl Scanner for UrlScanner {
 
             let require_host = scheme_requires_host(scheme);
 
-            if let (Some(after_authority), _) = find_authority_end(s, true, require_host, true) {
-                if let Some(end) = find_url_end(&s[after_authority..], quote) {
+            if let (Some(after_authority), _) =
+                find_authority_end(s, true, require_host, true, self.iri_parsing_enabled)
+            {
+                if let Some(end) =
+                    find_url_end(&s[after_authority..], quote, self.iri_parsing_enabled)
+                {
                     if after_authority == 0 && end == 0 {
                         return None;
                     }
@@ -77,11 +85,14 @@ impl Scanner for DomainScanner {
             return None;
         }
 
-        if let (Some(start), quote) = find_domain_start(&s[0..separator]) {
+        if let (Some(start), quote) = find_domain_start(&s[0..separator], self.iri_parsing_enabled)
+        {
             let s = &s[start..];
 
-            if let (Some(domain_end), Some(_)) = find_authority_end(s, false, true, true) {
-                if let Some(end) = find_url_end(&s[domain_end..], quote) {
+            if let (Some(domain_end), Some(_)) =
+                find_authority_end(s, false, true, true, self.iri_parsing_enabled)
+            {
+                if let Some(end) = find_url_end(&s[domain_end..], quote, self.iri_parsing_enabled) {
                     let range = Range {
                         start,
                         end: start + domain_end + end,
@@ -146,14 +157,15 @@ fn scheme_requires_host(scheme: &str) -> bool {
 /// - Domain is labels separated by `.`. Because we're starting at the first `.`, we only need to
 ///   handle one label.
 /// - Label can not start or end with `-`
-/// - Label can contain letters, digits, `-` or Unicode
-fn find_domain_start(s: &str) -> (Option<usize>, Option<char>) {
+/// - Label can contain letters, digits, `-` or Unicode if iri_allowed flag is true
+fn find_domain_start(s: &str, iri_parsing_enabled: bool) -> (Option<usize>, Option<char>) {
     let mut first = None;
     let mut quote = None;
 
     for (i, c) in s.char_indices().rev() {
         match c {
-            'a'..='z' | 'A'..='Z' | '0'..='9' | '\u{80}'..=char::MAX => first = Some(i),
+            'a'..='z' | 'A'..='Z' | '0'..='9' => first = Some(i),
+            '\u{80}'..=char::MAX if iri_parsing_enabled => first = Some(i),
             // If we had something valid like `https://www.` we'd have found it with the ":"
             // scanner already. We don't want to allow `.../www.example.com` just by itself.
             // We *could* allow `//www.example.com` (scheme-relative URLs) in the future.
@@ -192,7 +204,7 @@ fn find_domain_start(s: &str) -> (Option<usize>, Option<char>) {
 
 /// Find the end of a URL. At this point we already scanned past a valid authority. So e.g. in
 /// `https://example.com/foo` we're starting at `/` and want to end at `o`.
-fn find_url_end(s: &str, quote: Option<char>) -> Option<usize> {
+fn find_url_end(s: &str, quote: Option<char>, iri_parsing_enabled: bool) -> Option<usize> {
     let mut round = 0;
     let mut square = 0;
     let mut curly = 0;
@@ -272,6 +284,8 @@ fn find_url_end(s: &str, quote: Option<char>) -> Option<usize> {
                 // A single quote can only be the end of an URL if there's an even number
                 !single_quote
             }
+            '\u{80}'..=char::MAX if !iri_parsing_enabled => false,
+
             _ => true,
         };
         if can_be_last {

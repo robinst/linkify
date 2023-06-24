@@ -53,7 +53,7 @@ impl EmailScanner {
 
     // See "Domain" in RFC 5321, plus extension of "sub-domain" in RFC 6531
     fn find_end(&self, s: &str) -> Option<usize> {
-        if let (Some(end), last_dot) = find_authority_end(s, false, true, false) {
+        if let (Some(end), last_dot) = find_authority_end(s, false, true, false, true) {
             if !self.domain_must_have_dot || last_dot.is_some() {
                 Some(end)
             } else {
