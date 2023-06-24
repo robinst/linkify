@@ -213,7 +213,7 @@ fn find_url_end(s: &str, quote: Option<char>, iri_parsing_enabled: bool) -> Opti
     let mut previous_can_be_last = true;
     let mut end = Some(0);
 
-    if !s[0..].starts_with("/") {
+    if !s[0..].starts_with("/") && !s[0..].starts_with("?") {
         return Some(0);
     }
 
