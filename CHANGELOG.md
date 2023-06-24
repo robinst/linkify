@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [0.10.0] - 2023-06-24
+### Added
+- New option `url_can_bi_iri` that can be used to disable international
+  domain parsing (still enabled by default). This is useful for parsing
+  ASCII only URLs out of non-ASCII text even if there's no spaces
+  before/after the URL (#49)
+### Changed
+- Don't require valid hostname for `file://` URLs to allow for relative
+  paths used in the wild (#58)
+- Support URIs with empty path but with query, e.g. `foo://bar?a=b` (#59)
+- Require IPv4 addresses to have 4 numeric parts. This means things
+  like `1.0` are no longer recognized as domains (#46)
+
 ## [0.9.0] - 2022-07-11
 ### Changed
 - More strict parsing of hostname (authority) part of URLs. Applies to
@@ -92,6 +105,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[0.10.0]: https://github.com/robinst/linkify/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/robinst/linkify/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/robinst/linkify/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/robinst/linkify/compare/0.7.0...0.8.0
