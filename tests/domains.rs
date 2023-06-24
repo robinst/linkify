@@ -51,6 +51,12 @@ fn domain_with_userinfo_and_port() {
 #[test]
 fn domain_ipv4() {
     assert_linked("https://127.0.0.1/", "|https://127.0.0.1/|");
+    assert_linked("1.0.0.0", "|1.0.0.0|");
+    assert_linked("1.0.0.0/foo/bar", "|1.0.0.0/foo/bar|");
+    assert_not_linked("1.0 ");
+    assert_not_linked("1.0.0");
+    assert_not_linked("1.0.0.0.0");
+    assert_not_linked("1.0.0.");
 }
 
 #[test]
