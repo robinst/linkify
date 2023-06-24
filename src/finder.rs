@@ -44,15 +44,12 @@ impl<'t> Link<'t> {
 
 /// The type of link that was found.
 #[derive(Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum LinkKind {
     /// URL links like "http://example.org".
     Url,
     /// E-mail links like "foo@example.org"
     Email,
-    /// Users should not exhaustively match this enum, because more link types
-    /// may be added in the future.
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 /// Span within the input text.
@@ -172,7 +169,6 @@ impl LinkFinder {
             match *kind {
                 LinkKind::Email => self.email = true,
                 LinkKind::Url => self.url = true,
-                _ => {}
             }
         }
         self
