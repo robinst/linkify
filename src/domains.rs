@@ -38,6 +38,7 @@ pub(crate) fn find_authority_end(
 
     let mut maybe_last_dot = None;
     let mut last_dot = None;
+    let mut number_dots = 0;
     let mut dot_allowed = false;
     let mut hyphen_allowed = false;
     let mut all_numeric = true;
@@ -69,7 +70,10 @@ pub(crate) fn find_authority_end(
                 // Same as above, except numeric
                 dot_allowed = true;
                 hyphen_allowed = true;
-                last_dot = maybe_last_dot;
+                if last_dot != maybe_last_dot {
+                    last_dot = maybe_last_dot;
+                    number_dots += 1;
+                }
 
                 if host_ended {
                     maybe_host = false;
@@ -172,15 +176,15 @@ pub(crate) fn find_authority_end(
 
     if require_host {
         if maybe_host {
-            // Can't have just a number without dots as the authority
-            if all_numeric && last_dot.is_none() && end != Some(0) {
-                return (None, None);
-            }
-
-            // If we have something that is not just numeric (not an IP address),
-            // check that the TLD looks reasonable. This is to avoid linking things like
-            // `abc@v1.1`.
-            if !all_numeric {
+            if all_numeric {
+                // For IPv4 addresses, require 4 numbers
+                if number_dots != 3 {
+                    return (None, None);
+                }
+            } else {
+                // If we have something that is not just numeric (not an IP address),
+                // check that the TLD looks reasonable. This is to avoid linking things like
+                // `abc@v1.1`.
                 if let Some(last_dot) = last_dot {
                     if !valid_tld(&s[last_dot + 1..]) {
                         return (None, None);
