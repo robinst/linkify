@@ -407,13 +407,32 @@ fn international_not_allowed() {
     finder.kinds(&[LinkKind::Url]);
     assert_linked_with(&finder, "http://üñîçøðé.com", "http://üñîçøðé.com");
     assert_linked_with(&finder, "http://üñîçøðé.com/ä", "http://üñîçøðé.com/ä");
-    assert_linked_with(&finder, "http://example.org/\u{A1}", "|http://example.org/|\u{A1}");
-    assert_linked_with(&finder, "http://example.org/\u{A2}", "|http://example.org/|\u{A2}");
-    assert_linked_with(&finder, "http://example.org/\u{1F600}", "|http://example.org/|\u{1F600}");
-    assert_linked_with(&finder, "http://example.org/\u{A2}/", "|http://example.org/|\u{A2}/");
-    assert_linked_with(&finder, "http://xn--c1h.example.com/", "|http://xn--c1h.example.com/|");
+    assert_linked_with(
+        &finder,
+        "http://example.org/\u{A1}",
+        "|http://example.org/|\u{A1}",
+    );
+    assert_linked_with(
+        &finder,
+        "http://example.org/\u{A2}",
+        "|http://example.org/|\u{A2}",
+    );
+    assert_linked_with(
+        &finder,
+        "http://example.org/\u{1F600}",
+        "|http://example.org/|\u{1F600}",
+    );
+    assert_linked_with(
+        &finder,
+        "http://example.org/\u{A2}/",
+        "|http://example.org/|\u{A2}/",
+    );
+    assert_linked_with(
+        &finder,
+        "http://xn--c1h.example.com/",
+        "|http://xn--c1h.example.com/|",
+    );
 }
-
 
 #[test]
 fn international_not_allowed_without_protocol() {
@@ -429,7 +448,6 @@ fn international_not_allowed_without_protocol() {
     assert_linked_with(&finder, "example.org/\u{A2}/", "|example.org/|\u{A2}/");
     assert_linked_with(&finder, "xn--c1h.example.com/", "|xn--c1h.example.com/|");
 }
-
 
 #[test]
 fn international_without_protocol() {

@@ -19,12 +19,12 @@ const QUOTES: &[char] = &['\'', '\"'];
 ///
 /// Based on RFC 3986.
 pub struct UrlScanner {
-    pub iri_parsing_enabled: bool
+    pub iri_parsing_enabled: bool,
 }
 
 /// Scan for plain domains (without scheme) such as `test.com` or `test.com/hi-there`.
 pub struct DomainScanner {
-    pub iri_parsing_enabled: bool
+    pub iri_parsing_enabled: bool,
 }
 
 impl Scanner for UrlScanner {
@@ -55,8 +55,12 @@ impl Scanner for UrlScanner {
 
             let require_host = scheme_requires_host(scheme);
 
-            if let (Some(after_authority), _) = find_authority_end(s, true, require_host, true, self.iri_parsing_enabled) {
-                if let Some(end) = find_url_end(&s[after_authority..], quote, self.iri_parsing_enabled) {
+            if let (Some(after_authority), _) =
+                find_authority_end(s, true, require_host, true, self.iri_parsing_enabled)
+            {
+                if let Some(end) =
+                    find_url_end(&s[after_authority..], quote, self.iri_parsing_enabled)
+                {
                     if after_authority == 0 && end == 0 {
                         return None;
                     }
@@ -81,10 +85,13 @@ impl Scanner for DomainScanner {
             return None;
         }
 
-        if let (Some(start), quote) = find_domain_start(&s[0..separator], self.iri_parsing_enabled) {
+        if let (Some(start), quote) = find_domain_start(&s[0..separator], self.iri_parsing_enabled)
+        {
             let s = &s[start..];
 
-            if let (Some(domain_end), Some(_)) = find_authority_end(s, false, true, true, self.iri_parsing_enabled) {
+            if let (Some(domain_end), Some(_)) =
+                find_authority_end(s, false, true, true, self.iri_parsing_enabled)
+            {
                 if let Some(end) = find_url_end(&s[domain_end..], quote, self.iri_parsing_enabled) {
                     let range = Range {
                         start,

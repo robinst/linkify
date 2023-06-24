@@ -134,7 +134,7 @@ impl LinkFinder {
             email_domain_must_have_dot: true,
             url: true,
             url_must_have_scheme: true,
-            url_can_be_iri: true
+            url_can_be_iri: true,
         }
     }
 
@@ -188,7 +188,7 @@ impl LinkFinder {
             self.url_must_have_scheme,
             self.email,
             self.email_domain_must_have_dot,
-            self.url_can_be_iri
+            self.url_can_be_iri,
         )
     }
 
@@ -226,10 +226,10 @@ impl<'t> Links<'t> {
         iri_parsing_enabled: bool,
     ) -> Links<'t> {
         let url_scanner = UrlScanner {
-            iri_parsing_enabled
+            iri_parsing_enabled,
         };
         let domain_scanner = DomainScanner {
-            iri_parsing_enabled
+            iri_parsing_enabled,
         };
         let email_scanner = EmailScanner {
             domain_must_have_dot: email_domain_must_have_dot,
