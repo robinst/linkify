@@ -157,7 +157,8 @@ impl LinkFinder {
     }
 
     /// Sets whether URLs can be IRI according to RFC-3987.
-    /// The default is `true`
+    /// The default is `true`.
+    /// Setting it to `false` means domains can contain ASCII characters only.
     pub fn url_can_be_iri(&mut self, url_can_be_iri: bool) -> &mut LinkFinder {
         self.url_can_be_iri = url_can_be_iri;
         self

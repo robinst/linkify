@@ -32,7 +32,7 @@ pub(crate) fn find_authority_end(
     mut userinfo_allowed: bool,
     require_host: bool,
     port_allowed: bool,
-    iri_parsing_enabled: bool
+    iri_parsing_enabled: bool,
 ) -> (Option<usize>, Option<usize>) {
     let mut end = Some(0);
 
@@ -47,7 +47,10 @@ pub(crate) fn find_authority_end(
     for (i, c) in s.char_indices() {
         let can_be_last = match c {
             // ALPHA
-            'a'..='z' | 'A'..='Z' => {
+            'a'..='z' | 'A'..='Z' | '\u{80}'..=char::MAX => {
+                if !iri_parsing_enabled && c > '\u{80}' {
+                    break;
+                }
                 // Can start or end a domain label, but not numeric
                 dot_allowed = true;
                 hyphen_allowed = true;
@@ -58,19 +61,6 @@ pub(crate) fn find_authority_end(
                     maybe_host = false;
                 }
 
-                !require_host || !host_ended
-            }
-
-            '\u{80}'..=char::MAX if iri_parsing_enabled => {
-                // Can start or end a domain label, but not numeric
-                dot_allowed = true;
-                hyphen_allowed = true;
-                last_dot = maybe_last_dot;
-                all_numeric = false;
-
-                if host_ended {
-                    maybe_host = false;
-                }
                 !require_host || !host_ended
             }
 
