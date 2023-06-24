@@ -518,6 +518,18 @@ E-Mail:
 }
 
 #[test]
+fn uri_with_empty_path_and_with_query() {
+    assert_linked(
+        "upi://pay?pa=XXXXXXX&pn=XXXXX",
+        "|upi://pay?pa=XXXXXXX&pn=XXXXX|",
+    );
+    assert_linked(
+        "https://example.org?pa=XXXXXXX&pn=XXXXX",
+        "|https://example.org?pa=XXXXXXX&pn=XXXXX|",
+    );
+}
+
+#[test]
 fn fuzz() {
     assert_not_linked("ab:/ϸ");
 }
