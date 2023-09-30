@@ -89,7 +89,7 @@ impl EmailScanner {
             | '|'
             | '}'
             | '~' => true,
-            _ => c >= '\u{80}',
+            _ => false,
         }
     }
 }
