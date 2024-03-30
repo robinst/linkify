@@ -95,7 +95,7 @@ jobs:
       options: --security-opt seccomp=unconfined
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Generate code coverage
         uses: actions-rs/cargo@v1
@@ -104,9 +104,10 @@ jobs:
           args: --out Xml
 
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   demo:
     name: wasm demo
