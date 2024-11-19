@@ -1,5 +1,3 @@
-# Based on https://github.com/actions-rs/meta/blob/master/recipes/msrv.md
-
 name: ci
 on:
   pull_request:
@@ -11,25 +9,10 @@ jobs:
   check:
     name: check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - stable
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
-
-      - name: Run cargo check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo check
 
   test:
     name: test
@@ -44,15 +27,10 @@ jobs:
           - rust: 1.46.0
             msrv: true
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
 
       # See https://github.com/matklad/once_cell/issues/201
       # To test locally, enable the lock file and then run:
@@ -61,31 +39,15 @@ jobs:
         if: ${{ matrix.msrv }}
         run: cp Cargo.lock.msrv Cargo.lock
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - run: cargo test
 
   fmt:
     name: rustfmt
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-          components: rustfmt
-
-      - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo fmt --all -- --check
 
   coverage:
     name: coverage
@@ -94,15 +56,8 @@ jobs:
       image: xd009642/tarpaulin
       options: --security-opt seccomp=unconfined
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - name: Generate code coverage
-        uses: actions-rs/cargo@v1
-        with:
-          command: tarpaulin
-          args: --out Xml
-
+      - uses: actions/checkout@v4
+      - run: cargo tarpaulin --out Xml
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v4
         with:
@@ -116,17 +71,9 @@ jobs:
       run:
         working-directory: demo
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-
-      - name: yarn
-        run: yarn
-
-      - name: yarn build
-        run: yarn build
+      - uses: actions/checkout@v4
+      # Waiting for new wasm-bindgen release to run with newer rust:
+      # https://github.com/rustwasm/wasm-bindgen/issues/4211
+      - uses: dtolnay/rust-toolchain@1.81
+      - run: yarn
+      - run: yarn build

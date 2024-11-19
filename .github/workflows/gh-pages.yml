@@ -12,20 +12,14 @@ jobs:
       run:
         working-directory: demo
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      # Waiting for new wasm-bindgen release to run with newer rust:
+      # https://github.com/rustwasm/wasm-bindgen/issues/4211
+      - uses: dtolnay/rust-toolchain@1.81
 
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
+      - run: yarn
 
-      - name: yarn
-        run: yarn
-
-      - name: yarn build
-        run: yarn build
+      - run: yarn build
 
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
