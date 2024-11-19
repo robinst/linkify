@@ -102,12 +102,14 @@ pub struct LinkFinder {
     url_can_be_iri: bool,
 }
 
+type TriggerFinder = dyn Fn(&[u8]) -> Option<usize>;
+
 /// Iterator for finding links.
 pub struct Links<'t> {
     text: &'t str,
     rewind: usize,
 
-    trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>>,
+    trigger_finder: Box<TriggerFinder>,
     email_scanner: EmailScanner,
     url_scanner: UrlScanner,
     domain_scanner: DomainScanner,
@@ -232,7 +234,7 @@ impl<'t> Links<'t> {
         };
 
         // With optional schemes URLs don't have unique `:`, then search for `.` as well
-        let trigger_finder: Box<dyn Fn(&[u8]) -> Option<usize>> = match (url, email) {
+        let trigger_finder: Box<TriggerFinder> = match (url, email) {
             (true, true) if url_must_have_scheme => Box::new(|s| memchr2(b':', b'@', s)),
             (true, true) => Box::new(|s| memchr3(b':', b'@', b'.', s)),
             (true, false) if url_must_have_scheme => Box::new(|s| memchr(b':', s)),
@@ -271,7 +273,7 @@ impl<'t> Iterator for Links<'t> {
                 let end = self.rewind + range.end;
                 self.rewind = end;
                 let link = Link {
-                    text: &self.text,
+                    text: self.text,
                     start,
                     end,
                     kind,
@@ -299,10 +301,10 @@ impl<'t> Iterator for Spans<'t> {
 
     fn next(&mut self) -> Option<Span<'t>> {
         match self.links.peek() {
-            Some(ref link) => {
+            Some(link) => {
                 if self.position < link.start {
                     let span = Span {
-                        text: &self.text,
+                        text: self.text,
                         start: self.position,
                         end: link.start,
                         kind: None,
@@ -314,7 +316,7 @@ impl<'t> Iterator for Spans<'t> {
             None => {
                 if self.position < self.text.len() {
                     let span = Span {
-                        text: &self.text,
+                        text: self.text,
                         start: self.position,
                         end: self.text.len(),
                         kind: None,
@@ -327,7 +329,7 @@ impl<'t> Iterator for Spans<'t> {
         self.links.next().map(|link| {
             self.position = link.end;
             Span {
-                text: &self.text,
+                text: self.text,
                 start: link.start,
                 end: link.end,
                 kind: Some(link.kind),

@@ -9,7 +9,7 @@ use crate::scanner::Scanner;
 /// The shortest valid URL (without a scheme) might be g.cn (Google China),
 /// which consists of four characters.
 /// We set this as a lower threshold for parsing URLs from plaintext
-/// to avoid false-positives and as a slight performance optimization.
+/// to avoid false positives and as a slight performance optimization.
 /// This threshold might be adjusted in the future.
 const MIN_URL_LENGTH: usize = 4;
 
@@ -146,10 +146,7 @@ fn find_scheme_start(s: &str) -> (Option<usize>, Option<char>) {
 ///
 /// We could make this configurable, but let's keep it simple until someone asks (hi!).
 fn scheme_requires_host(scheme: &str) -> bool {
-    match scheme {
-        "https" | "http" | "ftp" | "ssh" => true,
-        _ => false,
-    }
+    matches!(scheme, "https" | "http" | "ftp" | "ssh")
 }
 
 /// Find the start of a plain domain URL (no scheme), e.g. from `blog.`, start at `g` and end at `b`.
@@ -175,7 +172,7 @@ fn find_domain_start(s: &str, iri_parsing_enabled: bool) -> (Option<usize>, Opti
             // If this was a valid domain, we'd have extracted it already from the previous "."
             '.' => return (None, None),
             '-' => {
-                if first == None {
+                if first.is_none() {
                     // Domain label can't end with `-`
                     return (None, None);
                 } else {

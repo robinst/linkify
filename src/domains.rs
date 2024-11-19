@@ -192,12 +192,12 @@ pub(crate) fn find_authority_end(
                 }
             }
 
-            return (end, last_dot);
+            (end, last_dot)
         } else {
-            return (None, None);
+            (None, None)
         }
     } else {
-        return (end, last_dot);
+        (end, last_dot)
     }
 }
 
