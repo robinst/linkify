@@ -207,7 +207,7 @@ fn find_url_end(s: &str, quote: Option<char>, iri_parsing_enabled: bool) -> Opti
     let mut curly = 0;
     let mut single_quote = false;
 
-    let mut previous_can_be_last = true;
+    let mut previous_is_url_char = true;
     let mut end = Some(0);
 
     if !s[0..].starts_with("/") && !s[0..].starts_with("?") {
@@ -232,9 +232,12 @@ fn find_url_end(s: &str, quote: Option<char>, iri_parsing_enabled: bool) -> Opti
                 false
             }
             '/' => {
-                // This may be part of an URL and at the end, but not if the previous character
-                // can't be the end of an URL
-                previous_can_be_last
+                // A slash can be the end of a URL if the previous character is a valid URL
+                // character. This means that delimiters like `!` or `.` before a `/` are
+                // included in the URL, e.g. `/!/`, but non-URL characters (like non-ASCII
+                // when IRI parsing is disabled) before a `/` are not.
+                // See https://github.com/robinst/linkify/issues/90
+                previous_is_url_char
             }
             '(' => {
                 round += 1;
@@ -288,7 +291,12 @@ fn find_url_end(s: &str, quote: Option<char>, iri_parsing_enabled: bool) -> Opti
         if can_be_last {
             end = Some(i + c.len_utf8());
         }
-        previous_can_be_last = can_be_last;
+        // Track whether the current character is a valid URL character (even if it can't
+        // be the last character). Delimiters like `!` are valid URL characters, but
+        // non-ASCII characters are not valid URL characters when IRI parsing is disabled.
+        // This matters for `/` above: a slash after a delimiter like `!` should extend
+        // the URL (e.g. `/!/`), but a slash after a non-URL character should not.
+        previous_is_url_char = c.is_ascii() || iri_parsing_enabled;
     }
 
     end
