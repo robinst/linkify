@@ -152,6 +152,30 @@ fn delimiter_at_end_no_protocol() {
 }
 
 #[test]
+fn delimiter_followed_by_slash() {
+    // https://github.com/robinst/linkify/issues/90
+    assert_linked("http://example.org/!/", "|http://example.org/!/|");
+    assert_linked("http://example.org/test!/", "|http://example.org/test!/|");
+    assert_linked("http://example.org/./", "|http://example.org/./|");
+    assert_linked("http://example.org/,/", "|http://example.org/,/|");
+    assert_linked("http://example.org/:/", "|http://example.org/:/|");
+    assert_linked("http://example.org/;/", "|http://example.org/;/|");
+    assert_linked("http://example.org/?/", "|http://example.org/?/|");
+    // Delimiter followed by slash and more path
+    assert_linked("http://example.org/!/a", "|http://example.org/!/a|");
+    assert_linked("http://example.org/test!/a", "|http://example.org/test!/a|");
+}
+
+#[test]
+fn delimiter_followed_by_slash_no_protocol() {
+    assert_urls_without_protocol("example.org/!/", "|example.org/!/|");
+    assert_urls_without_protocol("example.org/test!/", "|example.org/test!/|");
+    assert_urls_without_protocol("example.org/./", "|example.org/./|");
+    assert_urls_without_protocol("example.org/,/", "|example.org/,/|");
+    assert_urls_without_protocol("example.org/;/", "|example.org/;/|");
+}
+
+#[test]
 fn matching_punctuation() {
     assert_linked("http://example.org/a(b)", "|http://example.org/a(b)|");
     assert_linked("http://example.org/a[b]", "|http://example.org/a[b]|");

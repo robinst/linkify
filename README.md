@@ -22,6 +22,7 @@ Let's look at a few cases:
 Seems simple enough. But then we also have these cases:
 
 * `https://en.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)` should include the trailing paren
+* `http://example.com/./` should include the dot because the slash makes it a path
 * `http://üñîçøðé.com/ä` should also work for Unicode (including Emoji and Punycode)
 * `<http://example.com/>` should not include angle brackets
 
