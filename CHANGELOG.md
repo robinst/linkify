@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [0.11.0] - 2026-04-12
+### Changed
+- Include delimiters before slashes in URLs. E.g. in `https://test.com/!/`,
+  we would previously only extract `https://test.com/`, whereas now we
+  extract the full URL `https://test.com/!/` (#90)
+
 ## [0.10.0] - 2023-06-24
 ### Added
 - New option `url_can_bi_iri` that can be used to disable international
@@ -105,6 +111,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[0.11.0]: https://github.com/robinst/linkify/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/robinst/linkify/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/robinst/linkify/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/robinst/linkify/compare/0.8.0...0.8.1
