@@ -34,8 +34,6 @@ pub(crate) fn find_authority_end(
     port_allowed: bool,
     iri_parsing_enabled: bool,
 ) -> (Option<usize>, Option<usize>) {
-    let mut end = Some(0);
-
     let mut maybe_last_dot = None;
     let mut last_dot = None;
     let mut number_dots = 0;
@@ -44,8 +42,10 @@ pub(crate) fn find_authority_end(
     let mut all_numeric = true;
     let mut maybe_host = true;
     let mut host_ended = false;
+    let mut end = Some(0);
+    let mut chars = s.char_indices();
 
-    for (i, c) in s.char_indices() {
+    while let Some((i, c)) = chars.next() {
         let can_be_last = match c {
             // ALPHA
             'a'..='z' | 'A'..='Z' | '\u{80}'..=char::MAX => {
@@ -161,12 +161,63 @@ pub(crate) fn find_authority_end(
                 }
                 break;
             }
-            _ => {
-                // Anything else, this might be the end of the authority (can be empty).
-                // Now let the rest of the code handle checking whether the end of the URL is
-                // valid.
-                break;
+            '[' => {
+                if maybe_host && !host_ended {
+                    let mut closed = false;
+                    let mut has_chars = false;
+                    let mut bracket_end_idx = i;
+                    let mut in_zone_id = false;
+
+                    // look for closing bracket and ipv6 characters in between.
+                    for (inner_i, inner_c) in chars.by_ref() {
+                        match inner_c {
+                            ']' => {
+                                if has_chars {
+                                    closed = true;
+                                    bracket_end_idx = inner_i + inner_c.len_utf8();
+                                }
+                                break;
+                            }
+                            '%' => {
+                                if in_zone_id {
+                                    break;
+                                }
+                                in_zone_id = true;
+                                has_chars = true;
+                            }
+                            // Allow valid IPv6 characters + Zone Index alphanumeric
+                            '0'..='9' | 'a'..='f' | 'A'..='F' | ':' | '.' => {
+                                has_chars = true;
+                            }
+                            'g'..='z' | 'G'..='Z' => {
+                                if in_zone_id {
+                                    has_chars = true;
+                                } else {
+                                    // non hex char found in main ip section
+                                    break;
+                                }
+                            }
+                            _ => break, // Invalid character, abort
+                        }
+                    }
+
+                    if closed {
+                        // 4. Update state to reflect a successful host block
+                        all_numeric = false;
+                        maybe_last_dot = None;
+                        end = Some(bracket_end_idx);
+
+                        // The iterator is now sitting exactly on the character AFTER ']'.
+                        // We `continue` to let the outer loop process the next char (like ':' or '/')
+                        continue;
+                    } else {
+                        break; // Unclosed or malformed, terminate authority scanning
+                    }
+                } else {
+                    break;
+                }
             }
+            _ => break,
         };
 
         if can_be_last {

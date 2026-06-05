@@ -60,11 +60,34 @@ fn some_links_without_scheme(c: &mut Criterion) {
     });
 }
 
+fn ipv6_links(c: &mut Criterion) {
+    let finder = LinkFinder::new();
+
+    // performance of a standard, valid ipv6 link
+    c.bench_function("ipv6_standard", |b| {
+        b.iter(|| {
+            let links = finder.links("http://[2001:db8::1]:8080/path");
+            assert_eq!(links.count(), 1);
+        })
+    });
+
+    c.bench_function("ipv6_unclosed_bracket_fail_fast", |b| {
+        b.iter(|| {
+            let links = finder.links(
+                "http://[2001:db8::1_malformed_text_continues_on_and_on\
+			notice how it just keeps going on but doesnt end because there hasnt been a closing bracket",
+            );
+            assert_eq!(links.count(), 0);
+        })
+    });
+}
+
 criterion_group!(
     benches,
     no_links,
     some_links,
     heaps_of_links,
-    some_links_without_scheme
+    some_links_without_scheme,
+    ipv6_links
 );
 criterion_main!(benches);
