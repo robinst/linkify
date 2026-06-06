@@ -168,7 +168,7 @@ pub(crate) fn find_authority_end(
                     let mut bracket_end_idx = i;
 
                     // look for closing bracket and ipv6 characters in between.
-                    while let Some((inner_i, inner_c)) = chars.next() {
+                    for (inner_i, inner_c) in chars.by_ref() {
                         match inner_c {
                             ']' => {
                                 if has_chars {
