@@ -214,7 +214,7 @@ pub(crate) fn find_authority_end(
                 break;
             }
             '[' => {
-                if !maybe_host && host_ended {
+                if !maybe_host || host_ended {
                     break;
                 }
                 if let Some(bracket_end_index) = find_ipv6_end(&mut chars) {
