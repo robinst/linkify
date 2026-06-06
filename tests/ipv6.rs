@@ -248,4 +248,9 @@ fn ipv6_with_too_many_colons() {
     // so i'll do the same- otherwise we'd have to start counting colons and doing more complicated validations which...
     // would impact performance.
     assert_linked("http://[:::]", "|http://[:::]|");
+	// this isn't a bug, its a feature. we are not validating the number of colons, this is heuristic link extractor,
+	// not a strict URI validator. You can use this library to extract things that look like links and then use
+	// rusts' standard url crate to validate the links and throw whatever errors you choose to.
+	// counting the number of colons and doing more lookarounds than we're already doing would very likely impact performance.
+	assert_linked("http://[::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::]", "|http://[::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::]|")
 }
