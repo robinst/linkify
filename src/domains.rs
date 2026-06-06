@@ -27,6 +27,58 @@
 
 use std::char;
 
+/// ipv6 characters are hex characters, :'s and .'s (you can have ipv4 addresses inside ipv6 addresses).
+#[inline(always)]
+fn is_ipv6_char(c: char) -> bool {
+    matches!(c, '0'..='9' | 'a'..='f' | 'A'..='F' | ':' | '.')
+}
+
+/// zone_id characters
+#[inline(always)]
+fn is_zone_id_char(c: char) -> bool {
+    matches!(c, 'g'..='z' | 'G'..='Z')
+}
+
+fn find_ipv6_end<I>(chars: &mut I) -> Option<usize>
+where
+    I: Iterator<Item = (usize, char)>,
+{
+    let mut has_chars = false;
+    let mut in_zone_id = false;
+
+    for (inner_i, inner_c) in chars {
+        match inner_c {
+            ']' => {
+                return if has_chars {
+                    Some(inner_i + inner_c.len_utf8())
+                } else {
+                    None
+                };
+            }
+            '%' if !in_zone_id => {
+                in_zone_id = true;
+                has_chars = true;
+            }
+            '%' => return None, // Reject multiple '%' signs
+
+            c if is_ipv6_char(c) => {
+                has_chars = true;
+            }
+
+            c if is_zone_id_char(c) => {
+                if !in_zone_id {
+                    return None; // Non-hex char found outside of zone id
+                }
+                has_chars = true;
+            }
+
+            _ => return None, // Invalid character, abort
+        }
+    }
+
+    None
+}
+
 pub(crate) fn find_authority_end(
     s: &str,
     mut userinfo_allowed: bool,
@@ -162,57 +214,14 @@ pub(crate) fn find_authority_end(
                 break;
             }
             '[' => {
-                if maybe_host && !host_ended {
-                    let mut closed = false;
-                    let mut has_chars = false;
-                    let mut bracket_end_idx = i;
-                    let mut in_zone_id = false;
-
-                    // look for closing bracket and ipv6 characters in between.
-                    for (inner_i, inner_c) in chars.by_ref() {
-                        match inner_c {
-                            ']' => {
-                                if has_chars {
-                                    closed = true;
-                                    bracket_end_idx = inner_i + inner_c.len_utf8();
-                                }
-                                break;
-                            }
-                            '%' => {
-                                if in_zone_id {
-                                    break;
-                                }
-                                in_zone_id = true;
-                                has_chars = true;
-                            }
-                            // Allow valid IPv6 characters + Zone Index alphanumeric
-                            '0'..='9' | 'a'..='f' | 'A'..='F' | ':' | '.' => {
-                                has_chars = true;
-                            }
-                            'g'..='z' | 'G'..='Z' => {
-                                if in_zone_id {
-                                    has_chars = true;
-                                } else {
-                                    // non hex char found in main ip section
-                                    break;
-                                }
-                            }
-                            _ => break, // Invalid character, abort
-                        }
-                    }
-
-                    if closed {
-                        // 4. Update state to reflect a successful host block
-                        all_numeric = false;
-                        maybe_last_dot = None;
-                        end = Some(bracket_end_idx);
-
-                        // The iterator is now sitting exactly on the character AFTER ']'.
-                        // We `continue` to let the outer loop process the next char (like ':' or '/')
-                        continue;
-                    } else {
-                        break; // Unclosed or malformed, terminate authority scanning
-                    }
+                if !maybe_host && host_ended {
+                    break;
+                }
+                if let Some(bracket_end_index) = find_ipv6_end(&mut chars) {
+                    all_numeric = false;
+                    maybe_last_dot = None;
+                    end = Some(bracket_end_index);
+                    continue;
                 } else {
                     break;
                 }
