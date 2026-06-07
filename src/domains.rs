@@ -221,11 +221,18 @@ pub(crate) fn find_authority_end(
                     all_numeric = false;
                     maybe_last_dot = None;
                     end = Some(bracket_end_index);
+                    // The IPv6 helper finds the exact end index and consumes the closing ]
+                    // We use continue below to satisfy the match statement's type requirements,
+                    // and bypass the default `can_be_last` calculation for the opening [
+                    // and immediately process whatever follows the address.
                     continue;
                 } else {
                     break;
                 }
             }
+            // Anything else, this might be the end of the authority (can be empty).
+            // Now let the rest of the code handle checking whether the end of the URL is
+            // valid.
             _ => break,
         };
 
