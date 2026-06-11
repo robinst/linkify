@@ -192,6 +192,15 @@ fn ipv6_zone_index_ipv4_mapped() {
 }
 
 #[test]
+fn ipv6_zone_id_correct_place(){
+	assert_linked("http://[::1%25eth0]", "|http://[::1%25eth0]|");
+
+	// this is a malformed url- the %25eth0 should be in the brackets. a portion of the link is a valid url
+	// so we correctly identify that and as for the part thats malformed thats not our job.
+	assert_linked("http://[::1]%25eth0", "|http://[::1]|%25eth0");
+}
+
+#[test]
 fn ipv6_ipv4_mapped() {
     assert_linked(
         "http://[::ffff:192.0.2.128]",
