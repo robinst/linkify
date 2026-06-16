@@ -191,3 +191,12 @@ fn assert_linked(input: &str, expected: &str) {
 fn assert_not_linked(s: &str) {
     assert_linked(s, s);
 }
+
+#[test]
+fn i2p_valid() {
+    assert_linked(
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.b32.i2p",
+        "|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.b32.i2p|",
+    );
+    assert_linked("xxxx.i2p", "|xxxx.i2p|");
+}

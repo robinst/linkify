@@ -203,7 +203,7 @@ pub(crate) fn find_authority_end(
 
 fn valid_tld(tld: &str) -> bool {
     tld.chars()
-        .take_while(|c| c.is_ascii_alphabetic())
+        .take_while(|c| c.is_ascii_alphanumeric())
         .take(2)
         .count()
         >= 2
