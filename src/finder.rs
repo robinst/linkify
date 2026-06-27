@@ -1,8 +1,7 @@
 use std::fmt;
 use std::iter::Peekable;
 
-use memchr::{memchr, memchr2, memchr3};
-
+use crate::bug::BugReferenceScanner;
 use crate::email::EmailScanner;
 use crate::scanner::Scanner;
 use crate::url::{DomainScanner, UrlScanner};
@@ -13,6 +12,7 @@ pub struct Link<'t> {
     text: &'t str,
     start: usize,
     end: usize,
+    href: Option<String>,
     kind: LinkKind,
 }
 
@@ -35,6 +35,16 @@ impl<'t> Link<'t> {
         &self.text[self.start..self.end]
     }
 
+    /// Get the link destination.
+    ///
+    /// For most links this is the same as `as_str()`. Bug references return the
+    /// configured prefix plus the bug number when a bug reference prefix was set
+    /// on the `LinkFinder`.
+    #[inline]
+    pub fn href(&self) -> &str {
+        self.href.as_deref().unwrap_or_else(|| self.as_str())
+    }
+
     /// The type of the link.
     #[inline]
     pub fn kind(&self) -> &LinkKind {
@@ -50,6 +60,8 @@ pub enum LinkKind {
     Url,
     /// E-mail links like "foo@example.org"
     Email,
+    /// Bug references like "#12345".
+    BugReference,
 }
 
 /// Span within the input text.
@@ -95,6 +107,8 @@ impl<'t> Span<'t> {
 /// A configured link finder.
 #[derive(Debug)]
 pub struct LinkFinder {
+    bug_reference: bool,
+    bug_reference_prefix: Option<String>,
     email: bool,
     email_domain_must_have_dot: bool,
     url: bool,
@@ -108,8 +122,10 @@ type TriggerFinder = dyn Fn(&[u8]) -> Option<usize>;
 pub struct Links<'t> {
     text: &'t str,
     rewind: usize,
+    bug_reference_prefix: Option<String>,
 
     trigger_finder: Box<TriggerFinder>,
+    bug_reference_scanner: BugReferenceScanner,
     email_scanner: EmailScanner,
     url_scanner: UrlScanner,
     domain_scanner: DomainScanner,
@@ -129,6 +145,8 @@ impl LinkFinder {
     /// If you only want to find a certain kind of links, use the `kinds` method.
     pub fn new() -> LinkFinder {
         LinkFinder {
+            bug_reference: true,
+            bug_reference_prefix: None,
             email: true,
             email_domain_must_have_dot: true,
             url: true,
@@ -163,12 +181,24 @@ impl LinkFinder {
         self
     }
 
+    /// Set a prefix used to rewrite bug reference links.
+    ///
+    /// For example, with a prefix of `https://example.org/bugs/`, a matched
+    /// bug reference `#12345` will keep `as_str()` as `#12345` and return
+    /// `https://example.org/bugs/12345` from `href()`.
+    pub fn bug_reference_prefix(&mut self, prefix: &str) -> &mut LinkFinder {
+        self.bug_reference_prefix = Some(prefix.to_owned());
+        self
+    }
+
     /// Restrict the kinds of links that should be found to the specified ones.
     pub fn kinds(&mut self, kinds: &[LinkKind]) -> &mut LinkFinder {
+        self.bug_reference = false;
         self.email = false;
         self.url = false;
         for kind in kinds {
             match *kind {
+                LinkKind::BugReference => self.bug_reference = true,
                 LinkKind::Email => self.email = true,
                 LinkKind::Url => self.url = true,
             }
@@ -182,6 +212,8 @@ impl LinkFinder {
     pub fn links<'t>(&self, text: &'t str) -> Links<'t> {
         Links::new(
             text,
+            self.bug_reference,
+            self.bug_reference_prefix.clone(),
             self.url,
             self.url_must_have_scheme,
             self.email,
@@ -217,12 +249,15 @@ impl Default for LinkFinder {
 impl<'t> Links<'t> {
     fn new(
         text: &'t str,
+        bug_reference: bool,
+        bug_reference_prefix: Option<String>,
         url: bool,
         url_must_have_scheme: bool,
         email: bool,
         email_domain_must_have_dot: bool,
         iri_parsing_enabled: bool,
     ) -> Links<'t> {
+        let bug_reference_scanner = BugReferenceScanner;
         let url_scanner = UrlScanner {
             iri_parsing_enabled,
         };
@@ -233,19 +268,28 @@ impl<'t> Links<'t> {
             domain_must_have_dot: email_domain_must_have_dot,
         };
 
-        // With optional schemes URLs don't have unique `:`, then search for `.` as well
-        let trigger_finder: Box<TriggerFinder> = match (url, email) {
-            (true, true) if url_must_have_scheme => Box::new(|s| memchr2(b':', b'@', s)),
-            (true, true) => Box::new(|s| memchr3(b':', b'@', b'.', s)),
-            (true, false) if url_must_have_scheme => Box::new(|s| memchr(b':', s)),
-            (true, false) => Box::new(|s| memchr2(b':', b'.', s)),
-            (false, true) => Box::new(|s| memchr(b'@', s)),
-            (false, false) => Box::new(|_| None),
-        };
+        // With optional schemes URLs don't have unique `:`, then search for `.` as well.
+        let mut triggers = Vec::new();
+        if url {
+            triggers.push(b':');
+            if !url_must_have_scheme {
+                triggers.push(b'.');
+            }
+        }
+        if email {
+            triggers.push(b'@');
+        }
+        if bug_reference {
+            triggers.push(b'#');
+        }
+        let trigger_finder: Box<TriggerFinder> =
+            Box::new(move |s| s.iter().position(|byte| triggers.contains(byte)));
         Links {
             text,
             rewind: 0,
+            bug_reference_prefix,
             trigger_finder,
+            bug_reference_scanner,
             email_scanner,
             url_scanner,
             domain_scanner,
@@ -263,6 +307,7 @@ impl<'t> Iterator for Links<'t> {
         while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
             let trigger = slice.as_bytes()[find_from + i];
             let (scanner, kind): (&dyn Scanner, LinkKind) = match trigger {
+                b'#' => (&self.bug_reference_scanner, LinkKind::BugReference),
                 b':' => (&self.url_scanner, LinkKind::Url),
                 b'.' => (&self.domain_scanner, LinkKind::Url),
                 b'@' => (&self.email_scanner, LinkKind::Email),
@@ -272,10 +317,18 @@ impl<'t> Iterator for Links<'t> {
                 let start = self.rewind + range.start;
                 let end = self.rewind + range.end;
                 self.rewind = end;
+                let href = if kind == LinkKind::BugReference {
+                    self.bug_reference_prefix
+                        .as_ref()
+                        .map(|prefix| format!("{}{}", prefix, &self.text[start + 1..end]))
+                } else {
+                    None
+                };
                 let link = Link {
                     text: self.text,
                     start,
                     end,
+                    href,
                     kind,
                 };
                 return Some(link);
