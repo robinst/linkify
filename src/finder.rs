@@ -260,7 +260,7 @@ impl<'t> Iterator for Links<'t> {
         let slice = &self.text[self.rewind..];
 
         let mut find_from = 0;
-        while let Some(i) = (self.trigger_finder)(slice[find_from..].as_bytes()) {
+        while let Some(i) = (self.trigger_finder)(&slice.as_bytes()[find_from..]) {
             let trigger = slice.as_bytes()[find_from + i];
             let (scanner, kind): (&dyn Scanner, LinkKind) = match trigger {
                 b':' => (&self.url_scanner, LinkKind::Url),
