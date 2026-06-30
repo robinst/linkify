@@ -49,7 +49,9 @@ pub(crate) fn find_authority_end(
         let can_be_last = match c {
             // ALPHA
             'a'..='z' | 'A'..='Z' | '\u{80}'..=char::MAX => {
-                if !iri_parsing_enabled && c > '\u{80}' {
+                // Non-breaking space (U+00A0) is whitespace and must end the
+                // authority, even though it falls in the non-ASCII range. (#66)
+                if (!iri_parsing_enabled && c > '\u{80}') || c == '\u{A0}' {
                     break;
                 }
                 // Can start or end a domain label, but not numeric
