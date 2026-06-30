@@ -558,6 +558,16 @@ fn fuzz() {
     assert_not_linked("ab:/ϸ");
 }
 
+#[test]
+fn non_breaking_space_does_not_join_url() {
+    // Non-breaking space (U+00A0) must not be part of a URL.
+    // https://github.com/robinst/linkify/issues/66
+    assert_linked(
+        "see https://example.com\u{a0}now",
+        "see |https://example.com|\u{a0}now",
+    );
+}
+
 fn assert_not_linked(s: &str) {
     assert_linked(s, s);
 }

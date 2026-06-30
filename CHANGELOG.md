@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
+## [Unreleased]
+### Changed
+- Non-breaking space (U+00A0) is no longer included as part of e-mail and URL
+  links. It is now treated as a separator, like other whitespace (#66)
+
 ## [0.11.0] - 2026-04-12
 ### Changed
 - Include delimiters before slashes in URLs. E.g. in `https://test.com/!/`,
