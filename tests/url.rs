@@ -1,6 +1,9 @@
 mod common;
 
-use crate::common::assert_linked_with;
+use crate::common::{
+    assert_linked, assert_linked_with, assert_not_linked, assert_urls_without_protocol,
+};
+
 use linkify::{LinkFinder, LinkKind};
 
 #[test]
@@ -558,24 +561,6 @@ fn fuzz() {
     assert_not_linked("ab:/ϸ");
 }
 
-fn assert_not_linked(s: &str) {
-    assert_linked(s, s);
-}
-
-/// Assert link with protocol
-fn assert_linked(input: &str, expected: &str) {
-    let finder = LinkFinder::new();
-    assert_linked_with(&finder, input, expected);
-}
-
 fn assert_not_linked_without_protocol(s: &str) {
     assert_urls_without_protocol(s, s);
-}
-
-/// Assert link without protocol
-fn assert_urls_without_protocol(input: &str, expected: &str) {
-    let mut finder = LinkFinder::new();
-    finder.url_must_have_scheme(false);
-    finder.kinds(&[LinkKind::Url]);
-    assert_linked_with(&finder, input, expected);
 }
