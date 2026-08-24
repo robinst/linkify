@@ -181,6 +181,15 @@ pub fn test_international_allowed() {
     assert_eq!(link.as_str(), "\u{A1}\u{A2}example.com");
 }
 
+#[test]
+fn no_quadratic_scan_of_schemeless_hosts() {
+    // Each `~` makes the current candidate invalid as a host. Scanning has to stop there
+    // instead of running to the end of the input for every candidate, otherwise this test
+    // takes hours instead of milliseconds.
+    let input = "a.a~".repeat(2_000_000);
+    assert_not_linked(&input);
+}
+
 fn assert_linked(input: &str, expected: &str) {
     let mut finder = LinkFinder::new();
     finder.url_must_have_scheme(false);

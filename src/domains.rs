@@ -98,6 +98,9 @@ pub(crate) fn find_authority_end(
     let mut chars = s.char_indices();
 
     while let Some((i, c)) = chars.next() {
+        if require_host && !userinfo_allowed && !maybe_host {
+            break;
+        }
         let can_be_last = match c {
             // ALPHA
             'a'..='z' | 'A'..='Z' | '\u{80}'..=char::MAX => {
