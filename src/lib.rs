@@ -1,4 +1,4 @@
-//! Linkify finds links such as URLs and email addresses in plain text.
+//! Linkify finds links such as URLs, email addresses, and bug references in plain text.
 //! It's smart about where a link ends, such as with trailing punctuation.
 //!
 //! Your reaction might be: "Do I need a library for this? Why not a regex?".
@@ -17,7 +17,7 @@
 //! This library behaves as you'd expect in the above cases and many more.
 //! It uses a simple scan with linear runtime.
 //!
-//! In addition to URLs, it can also find emails.
+//! In addition to URLs, it can also find emails and bug references like `#12345`.
 //!
 //! ### Usage
 //!
@@ -34,6 +34,7 @@
 //! let link = &links[0];
 //!
 //! assert_eq!("http://example.com", link.as_str());
+//! assert_eq!("http://example.com", link.href());
 //! assert_eq!(14, link.start());
 //! assert_eq!(32, link.end());
 //! assert_eq!(&LinkKind::Url, link.kind());
@@ -68,6 +69,24 @@
 //! let link = &links[0];
 //! assert_eq!("foo@example.com", link.as_str());
 //! assert_eq!(&LinkKind::Email, link.kind());
+//! ```
+//!
+//! Configure a bug reference prefix:
+//!
+//! ```
+//! use linkify::{LinkFinder, LinkKind};
+//!
+//! let input = "Fixed in #12345";
+//! let mut finder = LinkFinder::new();
+//! finder.kinds(&[LinkKind::BugReference]);
+//! finder.bug_reference_prefix("https://example.org/bugs/");
+//! let links: Vec<_> = finder.links(input).collect();
+//!
+//! assert_eq!(1, links.len());
+//! let link = &links[0];
+//! assert_eq!("#12345", link.as_str());
+//! assert_eq!("https://example.org/bugs/12345", link.href());
+//! assert_eq!(&LinkKind::BugReference, link.kind());
 //! ```
 //!
 //! Split the text into consecutive spans (mixed links and plain text).
@@ -119,6 +138,7 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 
+mod bug;
 mod domains;
 mod email;
 mod finder;
