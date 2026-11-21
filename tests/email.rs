@@ -123,6 +123,16 @@ fn fuzz() {
     assert_linked("a@a.xyϸ", "|a@a.xyϸ|");
 }
 
+#[test]
+fn non_breaking_space_does_not_join_email() {
+    // Non-breaking space (U+00A0) must not be swallowed into an e-mail link.
+    // https://github.com/robinst/linkify/issues/66
+    assert_linked(
+        "this is a mail address:\u{a0}test@example.com\u{a0}surrounded by non-breaking spaces",
+        "this is a mail address:\u{a0}|test@example.com|\u{a0}surrounded by non-breaking spaces",
+    );
+}
+
 fn assert_not_linked(s: &str) {
     let mut finder = LinkFinder::new();
     finder.kinds(&[LinkKind::Email]);
