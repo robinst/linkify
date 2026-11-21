@@ -6,10 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html),
 with the exception that 0.x versions can break between minor versions.
 
-## [Unreleased]
+## [0.12.0] - 2026-11-21
+### Added
+- Support bracketed IPv6 addresses according to RFC 3986 and RFC 6874 (#106)
 ### Changed
 - Non-breaking space (U+00A0) is no longer included as part of e-mail and URL
   links. It is now treated as a separator, like other whitespace (#66)
+### Fixed
+- Fix quadratic scan on scheme-less input that cannot be a host (#116)
 
 ## [0.11.0] - 2026-04-12
 ### Changed
@@ -116,6 +120,7 @@ Initial release of linkify, a Rust library to find links such as URLs and email
 addresses in plain text, handling surrounding punctuation correctly.
 
 
+[0.12.0]: https://github.com/robinst/linkify/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/robinst/linkify/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/robinst/linkify/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/robinst/linkify/compare/0.8.1...0.9.0
