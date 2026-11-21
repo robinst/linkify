@@ -6,7 +6,6 @@ edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/robinst/linkify"
-homepage = "https://github.com/robinst/linkify"
 documentation = "https://docs.rs/linkify"
 description = "Finds URLs and email addresses in plain text. Takes care to get the boundaries right with surrounding punctuation like parentheses."
 categories = ["text-processing"]
